@@ -1,0 +1,6 @@
+{
+  "name": "MathVerse",
+  "description": "Professional offline mathematics handbook, comprehensive formula library, roots and powers explorer, unit converter, solved equations, and exam prep notes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
