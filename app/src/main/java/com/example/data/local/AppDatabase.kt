@@ -15,6 +15,7 @@ import androidx.room.RoomDatabase
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
+
     abstract fun examNoteDao(): ExamNoteDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun calcHistoryDao(): CalcHistoryDao
@@ -30,8 +31,8 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mathverse_database"
                 )
-                .fallbackToDestructiveMigration()
-                .build()
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                 INSTANCE = instance
                 instance
             }

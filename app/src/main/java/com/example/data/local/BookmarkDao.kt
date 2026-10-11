@@ -1,22 +1,19 @@
 package com.example.data.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookmarkDao {
-    @Query("SELECT formulaId FROM formula_bookmarks")
+    @Query("SELECT formulaId FROM bookmarked_formulas")
     fun getAllBookmarkedIds(): Flow<List<String>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addBookmark(bookmark: BookmarkEntity)
+    suspend fun insertBookmark(bookmark: BookmarkEntity)
 
-    @Query("DELETE FROM formula_bookmarks WHERE formulaId = :formulaId")
-    suspend fun removeBookmark(formulaId: String)
+    @Query("DELETE FROM bookmarked_formulas WHERE formulaId = :formulaId")
+    suspend fun deleteBookmark(formulaId: String)
 
-    @Query("SELECT EXISTS(SELECT 1 FROM formula_bookmarks WHERE formulaId = :formulaId)")
+    @Query("SELECT EXISTS(SELECT 1 FROM bookmarked_formulas WHERE formulaId = :formulaId)")
     suspend fun isBookmarked(formulaId: String): Boolean
 }

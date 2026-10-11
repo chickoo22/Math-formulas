@@ -1,13 +1,7 @@
 package com.example.data.repository
 
-import com.example.data.local.BookmarkDao
-import com.example.data.local.BookmarkEntity
-import com.example.data.local.CalcHistoryDao
-import com.example.data.local.CalcHistoryEntity
-import com.example.data.local.ExamNoteDao
-import com.example.data.local.ExamNoteEntity
+import com.example.data.local.*
 import com.example.data.model.Formula
-import com.example.data.model.FormulaCategory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -16,28 +10,26 @@ class MathRepository(
     private val bookmarkDao: BookmarkDao,
     private val calcHistoryDao: CalcHistoryDao
 ) {
-    val allNotes: Flow<List<ExamNoteEntity>> = examNoteDao.getAllNotes()
+    val formulasWithBookmarks: Flow<List<FormulaWithBookmark>> =
+        bookmarkDao.getAllBookmarkedIds().map { bookmarkedIds ->
+            val set = bookmarkedIds.toSet()
+            MathDataProvider.FORMULAS.map { formula ->
+                FormulaWithBookmark(
+                    formula = formula,
+                    isBookmarked = set.contains(formula.id)
+                )
+            }
+        }
 
-    val bookmarkedFormulaIds: Flow<List<String>> = bookmarkDao.getAllBookmarkedIds()
+    val allNotes: Flow<List<ExamNoteEntity>> = examNoteDao.getAllNotes()
 
     val calcHistory: Flow<List<CalcHistoryEntity>> = calcHistoryDao.getRecentHistory()
 
-    // Stream of formulas with isBookmarked flag combined reactively
-    val formulasWithBookmarks: Flow<List<FormulaWithBookmark>> = bookmarkedFormulaIds.map { bookmarkedIds ->
-        val idSet = bookmarkedIds.toSet()
-        MathDataProvider.FORMULAS.map { formula ->
-            FormulaWithBookmark(
-                formula = formula,
-                isBookmarked = idSet.contains(formula.id)
-            )
-        }
-    }
-
     suspend fun toggleBookmark(formulaId: String) {
         if (bookmarkDao.isBookmarked(formulaId)) {
-            bookmarkDao.removeBookmark(formulaId)
+            bookmarkDao.deleteBookmark(formulaId)
         } else {
-            bookmarkDao.addBookmark(BookmarkEntity(formulaId))
+            bookmarkDao.insertBookmark(BookmarkEntity(formulaId))
         }
     }
 
@@ -47,60 +39,36 @@ class MathRepository(
 
     suspend fun togglePinNote(id: Long) = examNoteDao.togglePin(id)
 
-    suspend fun deleteNote(id: Long) = examNoteDao.deleteNote(id)
+    suspend fun deleteNote(id: Long) = examNoteDao.deleteById(id)
 
-    suspend fun addCalcHistory(expression: String, result: String) {
+    suspend fun addCalcHistory(expression: String, result: String) =
         calcHistoryDao.insertHistory(CalcHistoryEntity(expression = expression, result = result))
-    }
 
-    suspend fun deleteHistoryItem(id: Long) = calcHistoryDao.deleteHistoryItem(id)
-
-    suspend fun clearCalcHistory() = calcHistoryDao.clearAllHistory()
+    suspend fun clearCalcHistory() = calcHistoryDao.clearAll()
 
     suspend fun seedInitialNotesIfEmpty() {
-        if (examNoteDao.getCount() == 0) {
-            val starterNotes = listOf(
+        if (examNoteDao.getNoteCount() == 0) {
+            val initialNotes = listOf(
                 ExamNoteEntity(
-                    title = "⚡ Calculus Exam High-Yield Rules",
+                    title = "Calculus Integration by Parts Shortcut (LIATE)",
+                    content = "Prioritize u selection in order:\n1. Logarithmic: ln x, log x\n2. Inverse trig: arctan x, arcsin x\n3. Algebraic: x², 3x, polynomials\n4. Trigonometric: sin x, cos x\n5. Exponential: eˣ, 2ˣ\n\nWhatever is earliest in LIATE becomes u. The rest is dv.",
                     category = "Calculus",
-                    content = "1. Remember LIATE rule for Integration by Parts: Log, Inverse trig, Algebraic, Trig, Exponential.\n2. L'Hôpital only applies to 0/0 or ∞/∞, never for 0·∞ or 1^∞ without transforming first!\n3. Chain Rule: Differentiate outside function first, then multiply by derivative of inside.",
-                    formulaSnippet = "∫ u dv = uv - ∫ v du",
-                    isPinned = true,
-                    colorTag = "#38BDF8"
+                    isPinned = true
                 ),
                 ExamNoteEntity(
-                    title = "📌 Quadratic Discriminant Shortcuts",
+                    title = "Quadratic Discriminant Rapid Check",
+                    content = "Δ = b² - 4ac:\n• Δ > 0 and perfect square: Two rational roots (can factor by grouping)\n• Δ > 0 but not square: Two irrational roots (use quadratic formula)\n• Δ = 0: Exactly one repeated rational root -b/(2a)\n• Δ < 0: Complex conjugate pair roots",
                     category = "Algebra",
-                    content = "Δ = b² - 4ac:\n• Δ > 0: 2 real, distinct solutions (parabola crosses x-axis twice)\n• Δ = 0: 1 real repeated root (parabola touches x-axis at vertex)\n• Δ < 0: 2 complex conjugate roots (parabola does not touch x-axis)",
-                    formulaSnippet = "x = (-b ± √(b² - 4ac)) / (2a)",
-                    isPinned = true,
-                    colorTag = "#F59E0B"
+                    isPinned = true
                 ),
                 ExamNoteEntity(
-                    title = "📐 Roots & Exponent Fast Mental Math",
-                    category = "Squares & Roots",
-                    content = "• To square numbers ending in 5: e.g. 75²: multiply 7 by (7+1)=56, attach 25 → 5625!\n• Cube root of negative numbers is always real and negative: ∛(-x) = -∛x.\n• Always rationalize denominators with conjugate: (a+√b)(a-√b) = a² - b.",
-                    formulaSnippet = "1 / (√a + √b) = (√a - √b) / (a - b)",
-                    isPinned = false,
-                    colorTag = "#10B981"
-                ),
-                ExamNoteEntity(
-                    title = "🎯 Trigonometry Unit Circle Mnemonics",
+                    title = "Trig Exact Values Hexagon Mnemonic",
+                    content = "Key identities:\n• tan = sin / cos\n• cot = cos / sin\n• sin²θ + cos²θ = 1\n• sec²θ - tan²θ = 1\n• csc²θ - cot²θ = 1\n\nOpposite vertices are reciprocals: sin·csc=1, cos·sec=1, tan·cot=1.",
                     category = "Trigonometry",
-                    content = "ASTC: 'All Students Take Calculus'\n• Quadrant I: All positive\n• Quadrant II: Sin positive\n• Quadrant III: Tan positive\n• Quadrant IV: Cos positive",
-                    formulaSnippet = "sin²θ + cos²θ = 1",
-                    isPinned = false,
-                    colorTag = "#A855F7"
+                    isPinned = false
                 )
             )
-            for (note in starterNotes) {
-                examNoteDao.insertNote(note)
-            }
+            initialNotes.forEach { examNoteDao.insertNote(it) }
         }
     }
 }
-
-data class FormulaWithBookmark(
-    val formula: Formula,
-    val isBookmarked: Boolean
-)

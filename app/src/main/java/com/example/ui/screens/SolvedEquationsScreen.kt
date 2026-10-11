@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LibraryBooks
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,7 +48,7 @@ fun SolvedEquationsScreen(
             .fillMaxSize()
             .testTag("solved_equations_screen")
     ) {
-        // Compact student top switcher with NO wasted blank space
+        // Compact student top switcher
         Surface(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 1.dp,
@@ -68,14 +69,15 @@ fun SolvedEquationsScreen(
                             onClick = { selectedTab = index },
                             shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
                             icon = {
-                                if (index == 0) Icon(Icons.Default.LibraryBooks, contentDescription = null, modifier = Modifier.size(16.dp))
+                                if (index == 0) Icon(Icons.AutoMirrored.Filled.LibraryBooks, contentDescription = null, modifier = Modifier.size(16.dp))
                                 else Icon(Icons.Default.AutoFixHigh, contentDescription = null, modifier = Modifier.size(16.dp))
                             }
                         ) {
                             Text(
                                 text = title,
                                 fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 12.5.sp
+                                fontSize = 12.5.sp,
+                                color = if (selectedTab == index) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -83,7 +85,7 @@ fun SolvedEquationsScreen(
             }
         }
 
-        // Main content area with explicit weight to ensure smooth scroll
+        // Main content area
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -128,12 +130,11 @@ fun SolvedLibraryTab() {
         contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Fast search bar for students
         item {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search worked problems, integrals, roots...") },
+                placeholder = { Text("Search worked problems, integrals, roots...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -144,7 +145,7 @@ fun SolvedLibraryTab() {
                 trailingIcon = {
                     if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear search")
+                            Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 },
@@ -153,10 +154,12 @@ fun SolvedLibraryTab() {
                     .testTag("solved_search_input"),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 ),
                 singleLine = true
             )
@@ -171,10 +174,23 @@ fun SolvedLibraryTab() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 filters.forEach { filter ->
+                    val isSelected = selectedFilter == filter
                     FilterChip(
-                        selected = selectedFilter == filter,
+                        selected = isSelected,
                         onClick = { selectedFilter = filter },
-                        label = { Text(filter, fontSize = 12.sp) },
+                        label = {
+                            Text(
+                                filter,
+                                fontSize = 12.sp,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
@@ -193,14 +209,14 @@ fun SolvedLibraryTab() {
                         Icon(
                             imageVector = Icons.Default.SearchOff,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "No problems match '$searchQuery'",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -215,7 +231,6 @@ fun SolvedLibraryTab() {
 
 @Composable
 fun StudentSolvedEquationCard(equation: SolvedEquation) {
-    // Interactive practice mode: student can reveal steps one by one or all at once!
     var revealedStepCount by remember { mutableIntStateOf(0) }
     val totalSteps = equation.steps.size
     val allRevealed = revealedStepCount >= totalSteps
@@ -226,9 +241,12 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
             .fillMaxWidth()
             .testTag("solved_card_${equation.id}"),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         border = CardDefaults.outlinedCardBorder().copy(
-            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -241,13 +259,13 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
             ) {
                 Surface(
                     shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                 ) {
                     Text(
                         text = equation.topic.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.8.sp
@@ -274,7 +292,7 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Copy solution",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -295,8 +313,8 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
             // Problem Box with clear math typography
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
@@ -326,8 +344,8 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
             // Final answer badge
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.35f)),
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -373,7 +391,7 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("Hide", fontSize = 12.sp)
+                            Text("Hide", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                         }
                     }
 
@@ -384,7 +402,12 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text(if (revealedStepCount == 0) "Show Step 1" else "Next Step ➔", fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                if (revealedStepCount == 0) "Show Step 1" else "Next Step ➔",
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
                         }
                     }
 
@@ -395,7 +418,7 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text(if (allRevealed) "Collapse" else "Reveal All", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(if (allRevealed) "Collapse" else "Reveal All", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -410,8 +433,8 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                     equation.steps.take(revealedStepCount).forEach { step ->
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
@@ -443,7 +466,7 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                                 Surface(
                                     shape = RoundedCornerShape(6.dp),
                                     color = MaterialTheme.colorScheme.surface,
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
@@ -452,7 +475,7 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                                             fontFamily = FontFamily.Monospace,
                                             lineHeight = 20.sp
                                         ),
-                                        color = MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                                     )
                                 }
@@ -464,8 +487,8 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                     if (allRevealed) {
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.25f),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.35f)),
+                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.5f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 4.dp)
@@ -485,14 +508,14 @@ fun StudentSolvedEquationCard(equation: SolvedEquation) {
                                     Text(
                                         text = "EXAM TIP & TAKEAWAY",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.tertiary,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer,
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = 0.6.sp
                                     )
                                     Text(
                                         text = equation.keyTakeaway,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
                             }
@@ -524,10 +547,24 @@ fun InteractiveSolversTab() {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 solvers.forEachIndexed { index, name ->
+                    val isSelected = selectedSolver == index
                     FilterChip(
-                        selected = selectedSolver == index,
+                        selected = isSelected,
                         onClick = { selectedSolver = index },
-                        label = { Text(name, fontSize = 12.sp, fontWeight = if (selectedSolver == index) FontWeight.Bold else FontWeight.Medium) },
+                        label = {
+                            Text(
+                                name,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            labelColor = MaterialTheme.colorScheme.onSurface,
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
@@ -557,19 +594,29 @@ fun RadicalSimplifierInSolversComponent() {
         } else null
     }
 
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Card(
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = CardDefaults.outlinedCardBorder().copy(
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = "Radical Prime Factorization & Simplifier",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -586,14 +633,14 @@ fun RadicalSimplifierInSolversComponent() {
                         onClick = { rootType = 2 },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
                     ) {
-                        Text("Square Root (√n)", fontSize = 12.sp)
+                        Text("Square Root (√n)", fontSize = 12.sp, color = if (rootType == 2) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)
                     }
                     SegmentedButton(
                         selected = rootType == 3,
                         onClick = { rootType = 3 },
                         shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
                     ) {
-                        Text("Cube Root (∛n)", fontSize = 12.sp)
+                        Text("Cube Root (∛n)", fontSize = 12.sp, color = if (rootType == 3) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)
                     }
                 }
 
@@ -602,8 +649,9 @@ fun RadicalSimplifierInSolversComponent() {
                 OutlinedTextField(
                     value = inputNum,
                     onValueChange = { inputNum = it.filter { c -> c.isDigit() } },
-                    label = { Text("Enter Integer N") },
+                    label = { Text("Enter Integer N", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier.fillMaxWidth(),
+                    colors = tfColors,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp)
@@ -621,7 +669,7 @@ fun RadicalSimplifierInSolversComponent() {
                     listOf("18", "48", "72", "108", "250", "500").forEach { p ->
                         SuggestionChip(
                             onClick = { inputNum = p },
-                            label = { Text((if (rootType == 3) "∛" else "√") + p, fontFamily = FontFamily.Monospace, fontSize = 11.5.sp) }
+                            label = { Text((if (rootType == 3) "∛" else "√") + p, fontFamily = FontFamily.Monospace, fontSize = 11.5.sp, color = MaterialTheme.colorScheme.onSurface) }
                         )
                     }
                 }
@@ -647,16 +695,25 @@ fun QuadraticSolverComponent() {
         } else null
     }
 
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Card(
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = CardDefaults.outlinedCardBorder().copy(
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("ax² + bx + c = 0 Quadratic Solver", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("ax² + bx + c = 0 Quadratic Solver", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Solves for roots, discriminant Δ = b² - 4ac, and vertex parabola coordinates.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -665,8 +722,9 @@ fun QuadraticSolverComponent() {
                     OutlinedTextField(
                         value = aStr,
                         onValueChange = { aStr = it },
-                        label = { Text("a") },
+                        label = { Text("a", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         modifier = Modifier.weight(1f).testTag("quad_input_a"),
+                        colors = tfColors,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp)
@@ -674,8 +732,9 @@ fun QuadraticSolverComponent() {
                     OutlinedTextField(
                         value = bStr,
                         onValueChange = { bStr = it },
-                        label = { Text("b") },
+                        label = { Text("b", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         modifier = Modifier.weight(1f).testTag("quad_input_b"),
+                        colors = tfColors,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp)
@@ -683,8 +742,9 @@ fun QuadraticSolverComponent() {
                     OutlinedTextField(
                         value = cStr,
                         onValueChange = { cStr = it },
-                        label = { Text("c") },
+                        label = { Text("c", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                         modifier = Modifier.weight(1f).testTag("quad_input_c"),
+                        colors = tfColors,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(10.dp)
@@ -702,15 +762,15 @@ fun QuadraticSolverComponent() {
                 ) {
                     SuggestionChip(
                         onClick = { aStr = "1"; bStr = "-5"; cStr = "6" },
-                        label = { Text("x² - 5x + 6 = 0", fontSize = 11.sp, fontFamily = FontFamily.Monospace) }
+                        label = { Text("x² - 5x + 6 = 0", fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface) }
                     )
                     SuggestionChip(
                         onClick = { aStr = "1"; bStr = "-4"; cStr = "4" },
-                        label = { Text("x² - 4x + 4 = 0 (Δ=0)", fontSize = 11.sp, fontFamily = FontFamily.Monospace) }
+                        label = { Text("x² - 4x + 4 = 0 (Δ=0)", fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface) }
                     )
                     SuggestionChip(
                         onClick = { aStr = "1"; bStr = "2"; cStr = "5" },
-                        label = { Text("x² + 2x + 5 = 0 (Complex)", fontSize = 11.sp, fontFamily = FontFamily.Monospace) }
+                        label = { Text("x² + 2x + 5 = 0 (Complex)", fontSize = 11.sp, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurface) }
                     )
                 }
             }
@@ -742,33 +802,42 @@ fun Linear2x2SolverComponent() {
         } else null
     }
 
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Card(
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = CardDefaults.outlinedCardBorder().copy(
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("2×2 Linear System (Cramer's Rule)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("2×2 Linear System (Cramer's Rule)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text("Equation 1: a₁x + b₁y = c₁", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = a1, onValueChange = { a1 = it }, label = { Text("a₁") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = b1, onValueChange = { b1 = it }, label = { Text("b₁") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = c1, onValueChange = { c1 = it }, label = { Text("c₁") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = a1, onValueChange = { a1 = it }, label = { Text("a₁", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = b1, onValueChange = { b1 = it }, label = { Text("b₁", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = c1, onValueChange = { c1 = it }, label = { Text("c₁", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Equation 2: a₂x + b₂y = c₂", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = a2, onValueChange = { a2 = it }, label = { Text("a₂") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = b2, onValueChange = { b2 = it }, label = { Text("b₂") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = c2, onValueChange = { c2 = it }, label = { Text("c₂") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = a2, onValueChange = { a2 = it }, label = { Text("a₂", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = b2, onValueChange = { b2 = it }, label = { Text("b₂", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = c2, onValueChange = { c2 = it }, label = { Text("c₂", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
                 }
             }
         }
@@ -790,35 +859,44 @@ fun RightTriangleSolverComponent() {
         EquationSolvers.solveRightTriangle(a, b, c)
     }
 
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
+
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Card(
             shape = RoundedCornerShape(14.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = CardDefaults.outlinedCardBorder().copy(
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                Text("Right Triangle & Pythagoras Solver", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text("Right Triangle & Pythagoras Solver", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.height(2.dp))
                 Text("Enter any two values (legs a, b or leg + hypotenuse c). Leave unknown blank.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = aStr, onValueChange = { aStr = it }, label = { Text("Leg a") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = bStr, onValueChange = { bStr = it }, label = { Text("Leg b") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
-                    OutlinedTextField(value = cStr, onValueChange = { cStr = it }, label = { Text("Hyp c") }, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = aStr, onValueChange = { aStr = it }, label = { Text("Leg a", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = bStr, onValueChange = { bStr = it }, label = { Text("Leg b", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
+                    OutlinedTextField(value = cStr, onValueChange = { cStr = it }, label = { Text("Hyp c", color = MaterialTheme.colorScheme.onSurfaceVariant) }, colors = tfColors, modifier = Modifier.weight(1f), singleLine = true, shape = RoundedCornerShape(8.dp))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     SuggestionChip(
                         onClick = { aStr = "3"; bStr = "4"; cStr = "" },
-                        label = { Text("3 - 4 - 5 Triangle", fontSize = 11.sp) }
+                        label = { Text("3 - 4 - 5 Triangle", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface) }
                     )
                     SuggestionChip(
                         onClick = { aStr = "5"; bStr = "12"; cStr = "" },
-                        label = { Text("5 - 12 - 13 Triangle", fontSize = 11.sp) }
+                        label = { Text("5 - 12 - 13 Triangle", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurface) }
                     )
                 }
             }
@@ -832,9 +910,9 @@ fun RightTriangleSolverComponent() {
 fun SolverResultDisplay(result: SolverResult) {
     Card(
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         border = CardDefaults.outlinedCardBorder().copy(
-            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
+            brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -846,7 +924,7 @@ fun SolverResultDisplay(result: SolverResult) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.surface,
-                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -859,7 +937,7 @@ fun SolverResultDisplay(result: SolverResult) {
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Derivation Steps:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+            Text("Derivation Steps:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(6.dp))
 
             result.steps.forEachIndexed { i, step ->

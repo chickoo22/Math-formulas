@@ -32,7 +32,7 @@ class MathViewModel(application: Application) : AndroidViewModel(application) {
     val notes: StateFlow<List<ExamNoteEntity>>
     val calcHistory: StateFlow<List<CalcHistoryEntity>>
 
-    private val _themeMode = MutableStateFlow(ThemeMode.DARK)
+    private val _themeMode = MutableStateFlow(ThemeMode.LIGHT)
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
     init {
@@ -66,13 +66,6 @@ class MathViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun toggleThemeMode() {
-        _themeMode.value = when (_themeMode.value) {
-            ThemeMode.DARK -> ThemeMode.LIGHT
-            ThemeMode.LIGHT -> ThemeMode.DARK
-            ThemeMode.SYSTEM -> ThemeMode.DARK
-        }
-    }
 
     fun toggleBookmark(formulaId: String) {
         viewModelScope.launch {

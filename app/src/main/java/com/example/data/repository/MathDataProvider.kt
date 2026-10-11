@@ -1,680 +1,598 @@
 package com.example.data.repository
 
 import com.example.data.model.Formula
-import com.example.data.model.FormulaCategory
-import com.example.data.model.NumberPowerRoot
-import com.example.data.model.SolutionStep
+import com.example.data.model.MathCategory
 import com.example.data.model.SolvedEquation
-import kotlin.math.cbrt
-import kotlin.math.sqrt
+import com.example.data.model.SolutionStep
 
 object MathDataProvider {
 
-    val NUMBERS_1_TO_50: List<NumberPowerRoot> by lazy {
-        (1..50).map { n ->
-            NumberPowerRoot(
-                n = n,
-                square = (n.toLong() * n),
-                squareRoot = sqrt(n.toDouble()),
-                cube = (n.toLong() * n * n),
-                cubeRoot = cbrt(n.toDouble())
-            )
-        }
-    }
-
     val FORMULAS: List<Formula> = listOf(
-        // ==========================================
-        // 1. SQUARES, SQUARE ROOTS, CUBES & POWERS
-        // ==========================================
+        // ROOTS & POWERS
         Formula(
-            id = "roots_exp_laws",
-            title = "Laws of Exponents & Powers",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Powers & Exponents",
-            formulaDisplay = "aᵐ · aⁿ = aᵐ⁺ⁿ\n(aᵐ)ⁿ = aᵐⁿ\n(ab)ⁿ = aⁿ · bⁿ\na⁻ⁿ = 1 / aⁿ  (a ≠ 0)\na⁰ = 1  (a ≠ 0)\naᵐ / aⁿ = aᵐ⁻ⁿ",
-            description = "Fundamental algebraic laws governing integer, rational, and real exponents.",
-            variables = listOf("a, b = nonzero real bases", "m, n = real exponents"),
+            id = "roots_laws_exp",
+            title = "Laws of Exponents",
+            formulaDisplay = "aᵐ · aⁿ = aᵐ⁺ⁿ  |  aᵐ / aⁿ = aᵐ⁻ⁿ  |  (aᵐ)ⁿ = aᵐⁿ",
+            description = "Fundamental algebraic operations for multiplying, dividing, and exponentiating terms with the same base.",
+            category = MathCategory.ROOTS_POWERS,
+            subcategory = "Exponents",
+            variables = listOf("a: Base (a ≠ 0)", "m, n: Exponents"),
             example = "2³ · 2⁴ = 2³⁺⁴ = 2⁷ = 128",
-            tags = listOf("powers", "exponents", "indices", "rules")
+            memoryTip = "Multiplying like bases? ADD powers. Dividing? SUBTRACT. Power of power? MULTIPLY.",
+            isHighYield = true,
+            searchTags = listOf("powers", "indices", "multiplication", "rules")
         ),
         Formula(
             id = "roots_fractional_exp",
             title = "Fractional Exponents & Radicals",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Radical Rules",
-            formulaDisplay = "a¹/ⁿ = ⁿ√a\naᵐ/ⁿ = (ⁿ√a)ᵐ = ⁿ√(aᵐ)\nⁿ√(a · b) = ⁿ√a · ⁿ√b\nⁿ√(a / b) = ⁿ√a / ⁿ√b",
-            description = "Exact equivalences between fractional exponents and nth root radicals.",
-            variables = listOf("a, b = positive real numbers", "n = index of radical (n ≥ 2)", "m = numerator power"),
-            example = "8²/³ = (∛8)² = 2² = 4",
-            tags = listOf("fractional", "roots", "radicals", "rational exponent")
+            formulaDisplay = "a¹ᐟⁿ = ⁿ√a   |   aᵐᐟⁿ = ⁿ√(aᵐ) = (ⁿ√a)ᵐ",
+            description = "Converts between fractional power indices and standard radical root representations.",
+            category = MathCategory.ROOTS_POWERS,
+            subcategory = "Radicals",
+            variables = listOf("a: Radicand (a ≥ 0 for even n)", "n: Index of radical (n ≥ 2)", "m: Exponent"),
+            example = "8²ᐟ³ = (³√8)² = 2² = 4",
+            memoryTip = "Flower Power rule: Power on top (sun/flower), Root on bottom (underground root) -> a^(power/root).",
+            isHighYield = true,
+            searchTags = listOf("fractional", "root", "power", "radical")
         ),
         Formula(
-            id = "roots_sqrt_product_quotient",
-            title = "Square Root Simplification Rules",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Square Roots",
-            formulaDisplay = "√(a · b) = √a · √b  (a, b ≥ 0)\n√(a / b) = √a / √b  (a ≥ 0, b > 0)\n(√a)² = a  (a ≥ 0)\n√(a²) = |a|  (for all real a)",
-            description = "Product and quotient simplification properties for principal square roots.",
-            variables = listOf("a, b = non-negative real numbers"),
+            id = "roots_product_quotient",
+            title = "Product & Quotient of Radicals",
+            formulaDisplay = "ⁿ√(a · b) = ⁿ√a · ⁿ√b   |   ⁿ√(a / b) = ⁿ√a / ⁿ√b",
+            description = "Splits or combines radicals with identical indices under multiplication and division.",
+            category = MathCategory.ROOTS_POWERS,
+            subcategory = "Radicals",
+            variables = listOf("a, b: Radicands (b ≠ 0)", "n: Positive integer root index"),
             example = "√72 = √(36 · 2) = √36 · √2 = 6√2",
-            tags = listOf("square root", "product rule", "quotient", "simplification")
+            memoryTip = "You can split roots under multiplication and division, but NEVER under addition: √(a+b) ≠ √a + √b!",
+            isHighYield = true,
+            searchTags = listOf("simplify", "radical", "square root", "cube root")
         ),
         Formula(
-            id = "roots_cbrt_properties",
-            title = "Cube Root Properties & Negative Radicands",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Cube Roots",
-            formulaDisplay = "∛(a³) = a\n∛(a · b) = ∛a · ∛b\n∛(-a) = -∛a\n(∛a)³ = a",
-            description = "Unlike square roots, cube roots are uniquely defined over all real numbers (both positive and negative).",
-            variables = listOf("a, b = any real numbers"),
-            example = "∛(-125) = -∛(125) = -5, because (-5)³ = -125",
-            tags = listOf("cube root", "properties", "negative radicand")
+            id = "roots_rationalization",
+            title = "Radical Conjugate Rationalization",
+            formulaDisplay = "1 / (√a + √b) = (√a - √b) / (a - b)",
+            description = "Eliminates square root terms from denominators by multiplying numerator and denominator by the conjugate.",
+            category = MathCategory.ROOTS_POWERS,
+            subcategory = "Simplification",
+            variables = listOf("a, b: Real numbers with a ≠ b"),
+            example = "1 / (√5 + √2) = (√5 - √2) / (5 - 2) = (√5 - √2) / 3",
+            memoryTip = "Conjugate flips the middle sign: (√a + √b)(√a - √b) = a - b. The radical completely vanishes from the bottom!",
+            isHighYield = true,
+            searchTags = listOf("conjugate", "rationalize", "fraction", "denominator")
         ),
         Formula(
-            id = "roots_diff_of_squares",
-            title = "Difference of Two Squares",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Squares",
-            formulaDisplay = "a² - b² = (a - b)(a + b)\na⁴ - b⁴ = (a² - b²)(a² + b²) = (a - b)(a + b)(a² + b²)",
-            description = "Standard algebraic identity for factoring difference of square and higher even powers.",
-            variables = listOf("a, b = real numbers or algebraic expressions"),
-            example = "x² - 49 = (x - 7)(x + 7)",
-            tags = listOf("square", "factoring", "conjugate", "difference of squares")
+            id = "roots_nested_radicals",
+            title = "De-nesting Nested Radicals",
+            formulaDisplay = "√(a ± √b) = √((a + c)/2) ± √((a - c)/2)   where c = √(a² - b)",
+            description = "Simplifies double nested radicals into the sum or difference of two simple square roots when a² - b is a perfect square.",
+            category = MathCategory.ROOTS_POWERS,
+            subcategory = "Nested Roots",
+            variables = listOf("a: First term", "b: Radicand under inner root", "c: √(a² - b) must be rational"),
+            example = "√(5 + 2√6) = √(5 + √24) -> c = √(25 - 24) = 1 -> √((5+1)/2) + √((5-1)/2) = √3 + √2",
+            memoryTip = "Before solving, check c = √(a² - b). If c is a clean whole number, de-nesting will work perfectly!",
+            isHighYield = false,
+            searchTags = listOf("nested", "double root", "ramanujan", "surd")
         ),
         Formula(
-            id = "roots_sum_squares_cubes_series",
-            title = "Sum of First n Squares & Cubes",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Series",
-            formulaDisplay = "∑ [k=1 to n] k = n(n + 1) / 2\n∑ [k=1 to n] k² = n(n + 1)(2n + 1) / 6\n∑ [k=1 to n] k³ = [n(n + 1) / 2]² = (∑ k)²",
-            description = "High-yield formulas for the sum of consecutive integers, squares, and cubes.",
-            variables = listOf("n = positive integer limit"),
-            example = "Sum of 1² + 2² + 3² + 4² + 5² = 5(6)(11)/6 = 55",
-            tags = listOf("sum of squares", "sum of cubes", "series", "integers")
-        ),
-        Formula(
-            id = "roots_cube_sum_diff",
-            title = "Sum & Difference of Two Cubes",
-            category = FormulaCategory.ROOTS_AND_POWERS,
+            id = "roots_sum_cubes",
+            title = "Sum and Difference of Cubes",
+            formulaDisplay = "a³ ± b³ = (a ± b)(a² ∓ ab + b²)",
+            description = "Canonical polynomial factorization formula for binomial cubes.",
+            category = MathCategory.ROOTS_POWERS,
             subcategory = "Cubes",
-            formulaDisplay = "a³ + b³ = (a + b)(a² - ab + b²)\na³ - b³ = (a - b)(a² + ab + b²)",
-            description = "Factoring identities for the sum and difference of two cubes.",
-            variables = listOf("a, b = real numbers or terms"),
-            example = "x³ - 64 = (x - 4)(x² + 4x + 16)",
-            tags = listOf("cube", "sum of cubes", "difference of cubes", "factoring")
-        ),
-        Formula(
-            id = "roots_binomial_cube_trinomial",
-            title = "Square & Cube of Polynomials",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Expansions",
-            formulaDisplay = "(a + b + c)² = a² + b² + c² + 2(ab + bc + ca)\n(a + b)³ = a³ + 3a²b + 3ab² + b³ = a³ + b³ + 3ab(a + b)\n(a - b)³ = a³ - 3a²b + 3ab² - b³ = a³ - b³ - 3ab(a - b)",
-            description = "Complete algebraic expansions for square of a trinomial and cube of a binomial.",
-            variables = listOf("a, b, c = algebraic terms"),
-            example = "(x + y + 2)² = x² + y² + 4 + 2xy + 4y + 4x",
-            tags = listOf("trinomial square", "binomial cube", "expansion")
-        ),
-        Formula(
-            id = "roots_denesting_radicals",
-            title = "Denesting Nested Radicals",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Radical Rules",
-            formulaDisplay = "√(a ± √b) = √((a + c)/2) ± √((a - c)/2)\nwhere c = √(a² - b)  (provided a² - b is a perfect square)",
-            description = "Splits a compound radical √(a ± √b) into two simple square roots.",
-            variables = listOf("a, b > 0 with a² > b and c = √(a² - b)"),
-            example = "√(5 + 2√6) = √(5 + √24): a=5, b=24 → c=√(25-24)=1 → √((5+1)/2) + √((5-1)/2) = √3 + √2",
-            tags = listOf("nested radical", "denest", "double root", "simplification")
-        ),
-        Formula(
-            id = "roots_rationalizing",
-            title = "Rationalizing the Denominator",
-            category = FormulaCategory.ROOTS_AND_POWERS,
-            subcategory = "Radical Rules",
-            formulaDisplay = "1 / √a = √a / a\n1 / (√a + √b) = (√a - √b) / (a - b)\n1 / (√a - √b) = (√a + √b) / (a - b)\n1 / (∛a - ∛b) = (∛a² + ∛(ab) + ∛b²) / (a - b)",
-            description = "Eliminating radicals from denominators by multiplying by radical conjugates.",
-            variables = listOf("a, b > 0 and a ≠ b"),
-            example = "1 / (√7 - √3) = (√7 + √3) / (7 - 3) = (√7 + √3) / 4",
-            tags = listOf("rationalize", "conjugate", "square root", "denominator")
+            variables = listOf("a, b: Arbitrary algebraic expressions or numbers"),
+            example = "x³ - 8 = x³ - 2³ = (x - 2)(x² + 2x + 4)",
+            memoryTip = "SOAP mnemonic for signs: Same sign first, Opposite sign middle, Always Positive at the end!",
+            isHighYield = true,
+            searchTags = listOf("cube", "factorization", "algebra", "identity")
         ),
 
-        // ==========================================
-        // 2. ALGEBRA
-        // ==========================================
+        // ALGEBRA
         Formula(
-            id = "alg_quadratic_formula",
-            title = "Quadratic Formula & Discriminant Analysis",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Polynomial Equations",
-            formulaDisplay = "For ax² + bx + c = 0 (a ≠ 0):\nx = (-b ± √(b² - 4ac)) / (2a)\nDiscriminant Δ = b² - 4ac:\n• Δ > 0: 2 distinct real roots\n• Δ = 0: 1 repeated real root (-b/2a)\n• Δ < 0: 2 complex conjugate roots",
-            description = "Finds exact roots and nature of solutions of any quadratic equation.",
-            variables = listOf("a = leading coefficient", "b = linear coefficient", "c = constant term"),
-            example = "x² - 5x + 6 = 0: Δ = 25 - 24 = 1 → x = (5 ± 1)/2 → x = 3, 2",
-            tags = listOf("quadratic", "roots", "discriminant", "parabola")
+            id = "alg_quadratic",
+            title = "Quadratic Formula & Discriminant",
+            formulaDisplay = "x = (-b ± √(b² - 4ac)) / (2a)   |   Δ = b² - 4ac",
+            description = "Calculates exact solutions for any quadratic equation ax² + bx + c = 0. Δ > 0 yields 2 real roots, Δ = 0 gives 1 root, Δ < 0 gives complex conjugates.",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Equations",
+            variables = listOf("a: Leading coefficient (a ≠ 0)", "b: Linear coefficient", "c: Constant term", "Δ: Discriminant"),
+            example = "x² - 5x + 6 = 0 -> a=1, b=-5, c=6 -> Δ = 25 - 24 = 1 -> x = (5 ± 1)/2 -> x = 3, 2",
+            memoryTip = "Story mnemonic: A negative boy (-b) was undecided (±) about a radical party (√) because he was square (b²) and missed 4 awesome chicks (-4ac), and the party ended at 2 a.m. (2a).",
+            isHighYield = true,
+            searchTags = listOf("quadratic", "roots", "parabola", "discriminant")
         ),
         Formula(
-            id = "alg_vietas_formulas",
-            title = "Vieta's Formulas (Quadratic & Cubic)",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Polynomial Equations",
-            formulaDisplay = "Quadratic ax² + bx + c = 0:\n  x₁ + x₂ = -b / a\n  x₁ · x₂ = c / a\n\nCubic ax³ + bx² + cx + d = 0:\n  x₁ + x₂ + x₃ = -b / a\n  x₁x₂ + x₂x₃ + x₃x₁ = c / a\n  x₁ · x₂ · x₃ = -d / a",
-            description = "Direct relations between polynomial roots and their coefficients.",
-            variables = listOf("x₁, x₂, x₃ = roots of the polynomial"),
-            example = "For 2x² - 8x + 6 = 0: Sum = 8/2 = 4, Product = 6/2 = 3",
-            tags = listOf("vieta", "sum of roots", "product of roots", "cubic")
+            id = "alg_vieta",
+            title = "Vieta's Formulas (Quadratic)",
+            formulaDisplay = "x₁ + x₂ = -b / a   |   x₁ · x₂ = c / a",
+            description = "Relates polynomial coefficients directly to the sum and product of equation roots without solving for x.",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Roots Relation",
+            variables = listOf("x₁, x₂: Roots of ax² + bx + c = 0"),
+            example = "For 2x² - 8x + 6 = 0: Sum = -(-8)/2 = 4, Product = 6/2 = 3",
+            memoryTip = "Sum changes sign (-b/a); Product keeps the sign (+c/a). High-yield for rapid multiple-choice checks!",
+            isHighYield = true,
+            searchTags = listOf("vieta", "sum of roots", "product of roots")
         ),
         Formula(
-            id = "alg_binomial_theorem",
-            title = "Binomial Theorem & General Term",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Expansions",
-            formulaDisplay = "(a + b)ⁿ = ∑ [k=0 to n] (ⁿCₖ) aⁿ⁻ᵏ bᵏ\nGeneral Term Tᵣ₊₁ = (ⁿCᵣ) aⁿ⁻ʳ bʳ\nⁿCᵣ = n! / [r!(n - r)!]\nTotal number of terms = n + 1",
-            description = "Formula for expanding any non-negative integer power of a binomial sum.",
-            variables = listOf("n = positive integer exponent", "r = term index (0 ≤ r ≤ n)"),
-            example = "(x + 2)⁴ = x⁴ + 4x³(2) + 6x²(4) + 4x(8) + 16 = x⁴ + 8x³ + 24x² + 32x + 16",
-            tags = listOf("binomial theorem", "pascals triangle", "general term")
+            id = "alg_binomial",
+            title = "Binomial Theorem",
+            formulaDisplay = "(x + y)ⁿ = ∑ₖ₌₀ⁿ [ n! / (k!(n - k)!) ] · xⁿ⁻ᵏ · yᵏ",
+            description = "Expands the power of any two-term algebraic expression using combinatorial binomial coefficients.",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Expansion",
+            variables = listOf("n: Non-negative integer power", "k: Index from 0 to n"),
+            example = "(x + 2)³ = x³ + 3(x²)(2) + 3(x)(4) + 8 = x³ + 6x² + 12x + 8",
+            memoryTip = "Power of x counts down from n to 0; power of y counts up from 0 to n. Sum of powers is always n!",
+            isHighYield = true,
+            searchTags = listOf("binomial", "pascal", "combinatorics", "series")
         ),
         Formula(
-            id = "alg_log_identities_extended",
-            title = "Logarithm Identities & Change of Base",
-            category = FormulaCategory.ALGEBRA,
+            id = "alg_ap_gp",
+            title = "Arithmetic & Geometric Progressions",
+            formulaDisplay = "AP: aₙ = a₁ + (n-1)d, Sₙ = (n/2)(2a₁ + (n-1)d)  |  GP: Sₙ = a₁(1 - rⁿ)/(1 - r)",
+            description = "Term and sum formulas for discrete linear step sequences (AP) and multiplicative ratio series (GP).",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Sequences",
+            variables = listOf("a₁: First term", "d: Common difference", "r: Common ratio (r ≠ 1)", "n: Number of terms"),
+            example = "AP 3, 7, 11... d=4. a₁₀ = 3 + 9(4) = 39. S₁₀ = (10/2)(3 + 39) = 210",
+            memoryTip = "AP sums are average of first and last multiplied by count: S = n · (first + last) / 2.",
+            isHighYield = true,
+            searchTags = listOf("sequence", "series", "progression", "ap", "gp")
+        ),
+        Formula(
+            id = "alg_log_laws",
+            title = "Logarithm Laws & Base Change",
+            formulaDisplay = "log(xy) = log x + log y   |   log(x/y) = log x - log y   |   log_b(a) = ln a / ln b",
+            description = "Algebraic rules for decomposing logarithmic products, fractions, power arguments, and converting base.",
+            category = MathCategory.ALGEBRA,
             subcategory = "Logarithms",
-            formulaDisplay = "logᵦ(xy) = logᵦ(x) + logᵦ(y)\nlogᵦ(x / y) = logᵦ(x) - logᵦ(y)\nlogᵦ(xᵏ) = k · logᵦ(x)\nlogᵦ(x) = ln(x) / ln(b) = log₁₀(x) / log₁₀(b)\nlogᵦ(a) = 1 / logₐ(b)\nb^(logᵦ x) = x",
-            description = "Standard operational laws of logarithms for all positive bases.",
-            variables = listOf("b > 0, b ≠ 1", "x, y > 0", "k = real number"),
-            example = "log₂ 32 = log₂ (2⁵) = 5",
-            tags = listOf("logarithm", "log rules", "natural log", "change of base")
-        ),
-        Formula(
-            id = "alg_progressions_ap_gp_hp",
-            title = "Progressions: AP, GP, & AM-GM-HM Inequality",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Sequences & Series",
-            formulaDisplay = "Arithmetic (AP): aₙ = a + (n-1)d,  Sₙ = (n/2)[2a + (n-1)d]\nGeometric (GP): aₙ = arⁿ⁻¹,  Sₙ = a(1-rⁿ)/(1-r),  S∞ = a/(1-r) (|r| < 1)\nInequality of Means (for positive a, b):\nAM = (a + b)/2,  GM = √(ab),  HM = 2ab/(a + b)\nAM ≥ GM ≥ HM  (equality holds iff a = b)",
-            description = "Essential series formulas and classic arithmetic-geometric-harmonic mean inequalities.",
-            variables = listOf("a = initial term", "d = common difference", "r = common ratio"),
-            example = "For numbers 4 and 16: AM = 10, GM = 8, HM = 6.4 → 10 ≥ 8 ≥ 6.4",
-            tags = listOf("AP", "GP", "HP", "AM-GM", "inequality", "series")
-        ),
-        Formula(
-            id = "alg_cauchy_schwarz",
-            title = "Cauchy-Schwarz Inequality",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Inequalities",
-            formulaDisplay = "(∑ [i=1 to n] aᵢ bᵢ)² ≤ (∑ [i=1 to n] aᵢ²) (∑ [i=1 to n] bᵢ²)\nVector Form: |a · b| ≤ ‖a‖ ‖b‖",
-            description = "Fundamental mathematical inequality in algebra, analysis, and vector geometry.",
-            variables = listOf("aᵢ, bᵢ = real numbers"),
-            example = "For (1, 2) and (3, 4): (1·3 + 2·4)² = 11² = 121; (1+4)(9+16) = 5·25 = 125 → 121 ≤ 125",
-            tags = listOf("cauchy schwarz", "inequality", "vector dot product")
-        ),
-        Formula(
-            id = "alg_remainder_factor_theorem",
-            title = "Remainder & Factor Theorems",
-            category = FormulaCategory.ALGEBRA,
-            subcategory = "Polynomials",
-            formulaDisplay = "Remainder Theorem:\nWhen polynomial P(x) is divided by (x - c), the remainder is R = P(c).\n\nFactor Theorem:\n(x - c) is a factor of P(x) if and only if P(c) = 0.",
-            description = "Tests polynomial divisibility and extracts roots without full polynomial long division.",
-            variables = listOf("P(x) = polynomial in x", "c = test root constant"),
-            example = "P(x) = x³ - 3x + 2. P(1) = 1 - 3 + 2 = 0 → (x - 1) is an exact factor.",
-            tags = listOf("remainder theorem", "factor theorem", "polynomial division")
+            variables = listOf("x, y > 0", "b: Base (b > 0, b ≠ 1)"),
+            example = "log₂(32) = ln(32) / ln(2) = 5",
+            memoryTip = "Logs turn multiplication into addition, division into subtraction, and powers into multipliers in front!",
+            isHighYield = true,
+            searchTags = listOf("log", "natural log", "ln", "exponent")
         ),
 
-        // ==========================================
-        // 3. TRIGONOMETRY
-        // ==========================================
+        // TRIGONOMETRY
         Formula(
-            id = "trig_pythagorean_identities",
+            id = "trig_pythagorean",
             title = "Pythagorean Trigonometric Identities",
-            category = FormulaCategory.TRIGONOMETRY,
+            formulaDisplay = "sin²θ + cos²θ = 1   |   1 + tan²θ = sec²θ   |   1 + cot²θ = csc²θ",
+            description = "Core circular trigonometry equalities derived directly from the unit circle radius vector.",
+            category = MathCategory.TRIGONOMETRY,
             subcategory = "Identities",
-            formulaDisplay = "sin²θ + cos²θ = 1\n1 + tan²θ = sec²θ\n1 + cot²θ = csc²θ\nsin²θ = 1 - cos²θ\ncos²θ = 1 - sin²θ",
-            description = "Fundamental identities derived from the unit circle and the Pythagorean theorem.",
-            variables = listOf("θ = angle in radians or degrees"),
-            example = "If cos θ = 3/5, then sin θ = √(1 - 9/25) = 4/5 (in Quadrant I)",
-            tags = listOf("pythagorean", "trig identities", "unit circle")
+            variables = listOf("θ: Angle in radians or degrees"),
+            example = "If sin θ = 3/5 in Quadrant I: cos θ = √(1 - 9/25) = 4/5",
+            memoryTip = "Divide sin² + cos² = 1 by cos² to get 1 + tan² = sec². Divide by sin² to get 1 + cot² = csc²!",
+            isHighYield = true,
+            searchTags = listOf("sin", "cos", "tan", "pythagoras", "unit circle")
         ),
         Formula(
-            id = "trig_compound_angle",
-            title = "Compound Angles (Sum & Difference)",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Identities",
-            formulaDisplay = "sin(A ± B) = sinA cosB ± cosA sinB\ncos(A ± B) = cosA cosB ∓ sinA sinB\ntan(A ± B) = (tanA ± tanB) / (1 ∓ tanA tanB)",
-            description = "Evaluates trigonometric functions of compound angle sums and differences.",
-            variables = listOf("A, B = arbitrary angles"),
-            example = "sin(75°) = sin(45°+30°) = (√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4",
-            tags = listOf("compound angles", "angle sum", "angle difference")
+            id = "trig_angle_sum",
+            title = "Angle Sum & Difference Identities",
+            formulaDisplay = "sin(α ± β) = sin α cos β ± cos α sin β  |  cos(α ± β) = cos α cos β ∓ sin α sin β",
+            description = "Decomposes compound trigonometric arguments into products of individual angle functions.",
+            category = MathCategory.TRIGONOMETRY,
+            subcategory = "Compound Angles",
+            variables = listOf("α, β: Angles"),
+            example = "sin(75°) = sin(45° + 30°) = (√2/2)(√3/2) + (√2/2)(1/2) = (√6 + √2)/4",
+            memoryTip = "Sine is friendly (mixes sin and cos, keeps same sign); Cosine is selfish (keeps cos together, then sin, and flips the sign!).",
+            isHighYield = true,
+            searchTags = listOf("compound", "sum", "difference", "sine", "cosine")
         ),
         Formula(
-            id = "trig_double_half_triple",
-            title = "Double, Half, & Triple Angle Formulas",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Multiple Angles",
-            formulaDisplay = "Double Angle:\nsin(2θ) = 2 sinθ cosθ\ncos(2θ) = cos²θ - sin²θ = 2cos²θ - 1 = 1 - 2sin²θ\ntan(2θ) = 2tanθ / (1 - tan²θ)\n\nHalf Angle:\nsin(θ/2) = ±√((1 - cosθ)/2)\ncos(θ/2) = ±√((1 + cosθ)/2)\ntan(θ/2) = (1 - cosθ) / sinθ = sinθ / (1 + cosθ)\n\nTriple Angle:\nsin(3θ) = 3 sinθ - 4 sin³θ\ncos(3θ) = 4 cos³θ - 3 cosθ",
-            description = "Complete set of multiple angle and sub-multiple angle trigonometric transformations.",
-            variables = listOf("θ = base angle"),
-            example = "cos(60°) = 1 - 2sin²(30°) = 1 - 2(1/4) = 0.5",
-            tags = listOf("double angle", "half angle", "triple angle", "sin 2x", "cos 2x")
+            id = "trig_double_angle",
+            title = "Double-Angle Formulas",
+            formulaDisplay = "sin(2θ) = 2 sin θ cos θ   |   cos(2θ) = cos²θ - sin²θ = 2cos²θ - 1 = 1 - 2sin²θ",
+            description = "Expresses trigonometric functions of 2θ in terms of degree-1 functions of θ.",
+            category = MathCategory.TRIGONOMETRY,
+            subcategory = "Double Angles",
+            variables = listOf("θ: Angle"),
+            example = "If cos θ = 1/√2: cos(2θ) = 2(1/2) - 1 = 0 (since 2θ = 90°)",
+            memoryTip = "cos(2θ) has 3 forms: cos² - sin², 2cos² - 1, and 1 - 2sin². Pick whichever cancels terms in your problem!",
+            isHighYield = true,
+            searchTags = listOf("double angle", "power reduction", "sine", "cosine")
         ),
         Formula(
-            id = "trig_product_to_sum",
-            title = "Product-to-Sum & Sum-to-Product",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Transformations",
-            formulaDisplay = "Product to Sum:\n2 sinA cosB = sin(A + B) + sin(A - B)\n2 cosA sinB = sin(A + B) - sin(A - B)\n2 cosA cosB = cos(A + B) + cos(A - B)\n2 sinA sinB = cos(A - B) - cos(A + B)\n\nSum to Product:\nsin C + sin D = 2 sin((C+D)/2) cos((C-D)/2)\ncos C + cos D = 2 cos((C+D)/2) cos((C-D)/2)",
-            description = "Essential identities for transforming products of sine/cosine into sums, vital for integration.",
-            variables = listOf("A, B, C, D = angles"),
-            example = "2 sin(45°) cos(15°) = sin(60°) + sin(30°) = √3/2 + 1/2",
-            tags = listOf("product to sum", "sum to product", "prosthaphaeresis")
-        ),
-        Formula(
-            id = "trig_laws_triangles",
-            title = "Law of Sines, Cosines, & Heron's Formula",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Triangles",
-            formulaDisplay = "Law of Sines: a / sinA = b / sinB = c / sinC = 2R\nLaw of Cosines: c² = a² + b² - 2ab cosC\nArea of Triangle: Δ = ½ab sinC\nHeron's Formula: Δ = √(s(s - a)(s - b)(s - c))\nwhere s = (a + b + c) / 2 [semi-perimeter]",
-            description = "Solves arbitrary (oblique) triangles given side-angle combinations.",
-            variables = listOf("a, b, c = side lengths", "A, B, C = opposite angles", "R = circumradius"),
-            example = "Triangle with a=5, b=6, c=7: s = 9 → Δ = √(9 · 4 · 3 · 2) = √216 = 6√6 ≈ 14.70",
-            tags = listOf("sine rule", "cosine rule", "heron formula", "triangle area")
-        ),
-        Formula(
-            id = "trig_standard_values",
-            title = "Standard Angles Reference Table",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Values",
-            formulaDisplay = "0° (0 rad): sin=0, cos=1, tan=0\n30° (π/6): sin=1/2, cos=√3/2, tan=1/√3\n45° (π/4): sin=√2/2, cos=√2/2, tan=1\n60° (π/3): sin=√3/2, cos=1/2, tan=√3\n90° (π/2): sin=1, cos=0, tan=undefined\n180° (π): sin=0, cos=-1, tan=0\n270° (3π/2): sin=-1, cos=0, tan=undefined",
-            description = "Exact radical values for trigonometric functions at standard textbook angles.",
-            variables = listOf("Degrees and radian equivalents"),
-            tags = listOf("standard angles", "exact values", "trig table")
-        ),
-        Formula(
-            id = "trig_hyperbolic_functions",
-            title = "Hyperbolic Functions & Fundamental Identity",
-            category = FormulaCategory.TRIGONOMETRY,
-            subcategory = "Hyperbolic",
-            formulaDisplay = "sinh(x) = (eˣ - e⁻ˣ) / 2\ncosh(x) = (eˣ + e⁻ˣ) / 2\ntanh(x) = sinh(x) / cosh(x) = (eˣ - e⁻ˣ) / (eˣ + e⁻ˣ)\ncosh²(x) - sinh²(x) = 1\n1 - tanh²(x) = sech²(x)",
-            description = "Definitions and identities of hyperbolic functions analogous to circular trigonometry.",
-            variables = listOf("x = real variable"),
-            example = "cosh(0) = (1 + 1)/2 = 1,  sinh(0) = (1 - 1)/2 = 0",
-            tags = listOf("hyperbolic", "sinh", "cosh", "tanh", "catenary")
+            id = "trig_law_sines_cosines",
+            title = "Law of Sines & Law of Cosines",
+            formulaDisplay = "a / sin A = b / sin B = c / sin C = 2R   |   c² = a² + b² - 2ab cos C",
+            description = "Solves arbitrary acute or obtuse triangles given side-angle-side or angle-side combinations.",
+            category = MathCategory.TRIGONOMETRY,
+            subcategory = "Triangle Laws",
+            variables = listOf("a, b, c: Triangle side lengths", "A, B, C: Opposite angles", "R: Circumcircle radius"),
+            example = "a = 5, b = 7, C = 60°: c² = 25 + 49 - 2(5)(7)(0.5) = 74 - 35 = 39 -> c = √39",
+            memoryTip = "Law of Cosines is just Pythagorean theorem with a correction term: c² = a² + b² - 2ab·cos(C).",
+            isHighYield = true,
+            searchTags = listOf("triangle", "sine rule", "cosine rule", "geometry")
         ),
 
-        // ==========================================
-        // 4. CALCULUS
-        // ==========================================
+        // CALCULUS
         Formula(
-            id = "calc_derivatives_rules",
-            title = "Differentiation Rules (Product, Quotient, Chain)",
-            category = FormulaCategory.CALCULUS,
-            subcategory = "Derivatives",
-            formulaDisplay = "Power Rule: d/dx(xⁿ) = n xⁿ⁻¹\nProduct Rule: (uv)' = u'v + uv'\nQuotient Rule: (u / v)' = (u'v - uv') / v²\nChain Rule: d/dx [f(g(x))] = f'(g(x)) · g'(x)\nImplicit: d/dx [y²] = 2y (dy/dx)",
-            description = "Foundational operational rules required to differentiate algebraic and transcendental functions.",
-            variables = listOf("u, v = differentiable functions of x", "n = real exponent"),
-            example = "d/dx [x³ sin x] = 3x² sin x + x³ cos x",
-            tags = listOf("derivatives", "chain rule", "product rule", "quotient rule")
+            id = "calc_derivative_rules",
+            title = "Product, Quotient & Chain Rules",
+            formulaDisplay = "(uv)' = u'v + uv'   |   (u/v)' = (u'v - uv') / v²   |   d/dx[f(g(x))] = f'(g(x)) · g'(x)",
+            description = "Foundational differential calculus rules for multiplying, dividing, and composing differentiable functions.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Differentiation",
+            variables = listOf("u, v: Differentiable functions of x", "f, g: Composite functions"),
+            example = "d/dx[x² sin x] = 2x sin x + x² cos x",
+            memoryTip = "Quotient rule rhyme: 'Low d-High minus High d-Low, over the square of what's below!' (v·u' - u·v') / v².",
+            isHighYield = true,
+            searchTags = listOf("derivative", "chain rule", "quotient", "product")
         ),
         Formula(
-            id = "calc_common_derivatives",
-            title = "Standard Derivatives Table",
-            category = FormulaCategory.CALCULUS,
-            subcategory = "Derivatives",
-            formulaDisplay = "d/dx(sin x) = cos x\nd/dx(cos x) = -sin x\nd/dx(tan x) = sec²x\nd/dx(sec x) = sec x tan x\nd/dx(eˣ) = eˣ,  d/dx(aˣ) = aˣ ln(a)\nd/dx(ln|x|) = 1 / x\nd/dx(arcsin x) = 1 / √(1 - x²)\nd/dx(arctan x) = 1 / (1 + x²)",
-            description = "Table of standard derivatives for trigonometric, exponential, log, and inverse trig functions.",
-            variables = listOf("x = independent real variable"),
-            example = "d/dx(arctan(2x)) = 2 / (1 + 4x²)",
-            tags = listOf("derivatives table", "trig derivatives", "exponential", "arcsin")
+            id = "calc_integration_parts",
+            title = "Integration by Parts",
+            formulaDisplay = "∫ u · dv = u · v - ∫ v · du",
+            description = "Integral counterpart of the product rule; transforms the integral of a function product into a simpler evaluation.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Integration",
+            variables = listOf("u, v: Differentiable functions. Choose u using LIATE rule (Log, Inverse trig, Algebraic, Trig, Exponential)."),
+            example = "∫ x eˣ dx: u = x, dv = eˣ dx -> du = dx, v = eˣ -> x eˣ - ∫ eˣ dx = x eˣ - eˣ + C",
+            memoryTip = "LIATE acronym for choosing u: Logarithmic > Inverse Trig > Algebraic > Trig > Exponential. Differentiate u, integrate dv!",
+            isHighYield = true,
+            searchTags = listOf("integral", "parts", "calculus", "liate")
         ),
         Formula(
-            id = "calc_mean_value_theorems",
-            title = "Rolle's & Lagrange's Mean Value Theorem",
-            category = FormulaCategory.CALCULUS,
+            id = "calc_ftc",
+            title = "Fundamental Theorem of Calculus",
+            formulaDisplay = "d/dx [∫ₐˣ f(t) dt] = f(x)   |   ∫ₐᵇ f(x) dx = F(b) - F(a)  where F'(x) = f(x)",
+            description = "Bridges the concept of differentiation with continuous accumulation and area under a curve.",
+            category = MathCategory.CALCULUS,
             subcategory = "Theorems",
-            formulaDisplay = "Rolle's Theorem:\nIf f is continuous on [a, b], diff on (a, b), and f(a) = f(b),\nthen ∃ c ∈ (a, b) such that f'(c) = 0.\n\nLagrange's Mean Value Theorem (MVT):\nIf f is continuous on [a, b] and diff on (a, b),\nthen ∃ c ∈ (a, b) such that:  f'(c) = [f(b) - f(a)] / (b - a)",
-            description = "Guarantees existence of a point where the instantaneous rate matches average rate of change.",
-            variables = listOf("f = continuous and differentiable function", "c = intermediate point in (a, b)"),
-            example = "For f(x) = x² on [0, 2]: f'(c) = (4 - 0)/(2 - 0) = 2 → 2c = 2 → c = 1",
-            tags = listOf("MVT", "rolles theorem", "mean value theorem", "derivatives")
+            variables = listOf("f: Continuous function on [a, b]", "F: Antiderivative of f"),
+            example = "∫₀² 3x² dx = [x³]₀² = 2³ - 0³ = 8",
+            memoryTip = "Derivative undoes integral, and definite integral is simply upper limit value minus lower limit value: F(b) - F(a).",
+            isHighYield = true,
+            searchTags = listOf("ftc", "definite integral", "area", "antiderivative")
         ),
         Formula(
-            id = "calc_taylor_series",
-            title = "Taylor & Maclaurin Series Expansions",
-            category = FormulaCategory.CALCULUS,
+            id = "calc_taylor",
+            title = "Taylor & Maclaurin Series",
+            formulaDisplay = "f(x) = ∑ₙ₌₀^∞ [ f⁽ⁿ⁾(a) / n! ] · (x - a)ⁿ   |   Maclaurin: a = 0",
+            description = "Approximates any infinitely differentiable function as an infinite polynomial expansion around a center point.",
+            category = MathCategory.CALCULUS,
             subcategory = "Series",
-            formulaDisplay = "Taylor Series at x = a:\nf(x) = ∑ [n=0 to ∞] [fⁿ(a) / n!] (x - a)ⁿ\n\nMaclaurin Series (a = 0):\neˣ = 1 + x + x²/2! + x³/3! + ...\nsin x = x - x³/3! + x⁵/5! - x⁷/7! + ...\ncos x = 1 - x²/2! + x⁴/4! - x⁶/6! + ...\nln(1 + x) = x - x²/2 + x³/3 - x⁴/4 + ...  (|x| < 1)\n1 / (1 - x) = 1 + x + x² + x³ + ...  (|x| < 1)",
-            description = "Polynomial series approximations for smooth mathematical functions.",
-            variables = listOf("fⁿ(a) = nth derivative evaluated at center point a"),
-            example = "First 2 terms of sin(0.1) ≈ 0.1 - (0.001)/6 ≈ 0.099833",
-            tags = listOf("taylor series", "maclaurin series", "polynomial approximation")
+            variables = listOf("f⁽ⁿ⁾(a): n-th derivative evaluated at center a", "n!: Factorial"),
+            example = "eˣ = 1 + x + x²/2! + x³/3! + ... ; sin x = x - x³/3! + x⁵/5! - ...",
+            memoryTip = "Maclaurin is simply Taylor series centered at a = 0. Notice odd functions (sin) have odd powers, even (cos) have even powers!",
+            isHighYield = true,
+            searchTags = listOf("taylor", "maclaurin", "series", "approximation")
         ),
         Formula(
-            id = "calc_standard_integrals",
-            title = "Table of Standard Integrals",
-            category = FormulaCategory.CALCULUS,
-            subcategory = "Integrals",
-            formulaDisplay = "∫ xⁿ dx = (xⁿ⁺¹ / (n + 1)) + C  (n ≠ -1)\n∫ (1 / x) dx = ln|x| + C\n∫ eˣ dx = eˣ + C\n∫ sin x dx = -cos x + C\n∫ cos x dx = sin x + C\n∫ sec²x dx = tan x + C\n∫ 1 / (x² + a²) dx = (1 / a) arctan(x / a) + C\n∫ 1 / √(a² - x²) dx = arcsin(x / a) + C\n∫ 1 / √(x² ± a²) dx = ln|x + √(x² ± a²)| + C",
-            description = "Standard indefinite integrals and anti-derivative forms.",
-            variables = listOf("C = arbitrary constant of integration", "a = nonzero constant"),
-            example = "∫ (3x² + 4x - 5) dx = x³ + 2x² - 5x + C",
-            tags = listOf("integrals", "anti-derivatives", "integration table")
-        ),
-        Formula(
-            id = "calc_integration_by_parts",
-            title = "Integration by Parts & Substitution",
-            category = FormulaCategory.CALCULUS,
-            subcategory = "Integrals",
-            formulaDisplay = "Integration by Parts:\n∫ u dv = u·v - ∫ v du\nPriority Order for u: LIATE\n(Logarithmic, Inverse Trig, Algebraic, Trigonometric, Exponential)\n\nSubstitution Rule:\n∫ f(g(x)) g'(x) dx = ∫ f(u) du  where u = g(x)",
-            description = "Core techniques for integrating products and nested composite functions.",
-            variables = listOf("u, v = differentiable functions", "du, dv = differentials"),
-            example = "∫ x eˣ dx: u=x, dv=eˣdx → uv - ∫v du = x eˣ - eˣ + C",
-            tags = listOf("by parts", "u substitution", "liate rule")
-        ),
-        Formula(
-            id = "calc_arc_length_surface",
-            title = "Arc Length & Surface of Revolution",
-            category = FormulaCategory.CALCULUS,
-            subcategory = "Applications",
-            formulaDisplay = "Arc Length of Curve y = f(x):\nL = ∫ [a to b] √(1 + [f'(x)]²) dx\n\nSurface Area of Revolution (about x-axis):\nS = 2π ∫ [a to b] y √(1 + [y']²) dx\n\nVolume of Revolution (Disk Method):\nV = π ∫ [a to b] [f(x)]² dx",
-            description = "Formulas for curve length, surface area, and volume of solids of revolution.",
-            variables = listOf("f'(x) = dy/dx", "[a, b] = bounds of integration"),
-            example = "Circle x²+y²=r² circumference: 4 ∫ [0 to r] √(1 + x²/(r²-x²)) dx = 2πr",
-            tags = listOf("arc length", "surface of revolution", "volume of revolution")
-        ),
-        Formula(
-            id = "calc_differential_equations",
-            title = "First-Order Linear Differential Equations",
-            category = FormulaCategory.CALCULUS,
+            id = "calc_ode_first_order",
+            title = "First-Order Linear ODE (Integrating Factor)",
+            formulaDisplay = "y' + P(x)y = Q(x)   ->   I(x) = e^(∫ P(x)dx)   ->   y = (1/I(x)) · ∫ I(x)Q(x)dx",
+            description = "Exact analytic solution for any first-order linear ordinary differential equation using the integrating factor technique.",
+            category = MathCategory.CALCULUS,
             subcategory = "Differential Equations",
-            formulaDisplay = "Standard Form:  dy/dx + P(x) y = Q(x)\nIntegrating Factor:  I(x) = e^(∫ P(x) dx)\nGeneral Solution:  y · I(x) = ∫ [Q(x) · I(x)] dx + C\n\nSeparable Form:  dy/dx = g(x) h(y) → ∫ (1/h(y)) dy = ∫ g(x) dx",
-            description = "Method of integrating factors and separation of variables for first-order ODEs.",
-            variables = listOf("P(x), Q(x) = continuous functions of x", "I(x) = integrating factor"),
-            example = "dy/dx + y = eˣ: P=1 → I = eˣ → y eˣ = ∫ e²ˣ dx = ½e²ˣ + C → y = ½eˣ + Ce⁻ˣ",
-            tags = listOf("differential equations", "integrating factor", "ODE", "separable")
+            variables = listOf("P(x), Q(x): Continuous coefficient functions", "I(x): Integrating factor"),
+            example = "y' + (1/x)y = x² -> I(x) = e^(ln x) = x -> y = (1/x) ∫ x³ dx = x³/4 + C/x",
+            memoryTip = "Multiply entire equation by I(x) = e^(∫P dx) to make the left side a pure product rule derivative: d/dx[I · y]!",
+            isHighYield = false,
+            searchTags = listOf("ode", "differential equations", "integrating factor")
         ),
 
-        // ==========================================
-        // 5. GEOMETRY & COORDINATE GEOMETRY
-        // ==========================================
+        // LINEAR ALGEBRA
         Formula(
-            id = "geom_coordinate_2d",
-            title = "2D Coordinate Geometry & Straight Lines",
-            category = FormulaCategory.GEOMETRY,
-            subcategory = "Coordinate Geometry",
-            formulaDisplay = "Distance Formula:  d = √((x₂ - x₁)² + (y₂ - y₁)²)\nMidpoint:  M = ((x₁ + x₂)/2,  (y₁ + y₂)/2)\nSection Formula (ratio m:n):  ((mx₂ + nx₁)/(m+n),  (my₂ + ny₁)/(m+n))\nSlope of Line:  m = (y₂ - y₁) / (x₂ - x₁) = tan θ\nPoint-Slope Form:  y - y₁ = m(x - x₁)\nPerpendicular Distance from (x₀, y₀) to Ax + By + C = 0:\nd = |A x₀ + B y₀ + C| / √(A² + B²)",
-            description = "Fundamental analytic geometry formulas for points, distance, slopes, and straight lines.",
-            variables = listOf("(x₁, y₁), (x₂, y₂) = coordinates", "m = slope", "d = perpendicular distance"),
-            example = "Distance between (1, 2) and (4, 6) = √(3² + 4²) = √25 = 5",
-            tags = listOf("coordinate geometry", "distance formula", "slope", "perpendicular distance")
+            id = "la_matrix_mult",
+            title = "Matrix Multiplication (2×2)",
+            formulaDisplay = "[a b; c d] · [e f; g h] = [ae + bg, af + bh ; ce + dg, cf + dh]",
+            description = "Row-by-column inner product operation for matrix composition and linear transformations.",
+            category = MathCategory.LINEAR_ALGEBRA,
+            subcategory = "Operations",
+            variables = listOf("Row 1: [a, b], Row 2: [c, d]", "Column 1: [e, g], Column 2: [f, h]"),
+            example = "[1 2; 3 4] · [2 0; 1 3] = [1(2)+2(1), 1(0)+2(3); 3(2)+4(1), 3(0)+4(3)] = [4 6; 10 12]",
+            memoryTip = "Row dives into Column! Across the first matrix, DOWN the second matrix.",
+            isHighYield = true,
+            searchTags = listOf("matrix", "dot product", "multiplication", "transformation")
         ),
         Formula(
-            id = "geom_conic_sections",
-            title = "Conic Sections: Parabola, Ellipse, Hyperbola",
-            category = FormulaCategory.GEOMETRY,
+            id = "la_determinant",
+            title = "Determinant of 2×2 & 3×3 Matrices",
+            formulaDisplay = "det[a b; c d] = ad - bc   |   det(3x3): a(ei - fh) - b(di - fg) + c(dh - eg)",
+            description = "Scalar value characterizing matrix invertibility, linear scaling factor, and geometric volume transformation.",
+            category = MathCategory.LINEAR_ALGEBRA,
+            subcategory = "Determinants",
+            variables = listOf("det(A) ≠ 0 implies matrix A is non-singular and invertible"),
+            example = "det[3 8; 4 6] = 3(6) - 8(4) = 18 - 32 = -14",
+            memoryTip = "Main diagonal minus off diagonal: ad - bc. If det = 0, the matrix collapses space and cannot be inverted.",
+            isHighYield = true,
+            searchTags = listOf("determinant", "cramer", "invertible", "matrix")
+        ),
+        Formula(
+            id = "la_inverse",
+            title = "2×2 Matrix Inverse",
+            formulaDisplay = "A⁻¹ = (1 / det(A)) · [d -b ; -c a]   where det(A) = ad - bc ≠ 0",
+            description = "Calculates the exact multiplicative inverse of a 2x2 matrix using the adjugate matrix.",
+            category = MathCategory.LINEAR_ALGEBRA,
+            subcategory = "Inverses",
+            variables = listOf("A: 2x2 matrix [a b; c d] with det(A) ≠ 0"),
+            example = "[4 7; 2 6] -> det = 24 - 14 = 10 -> A⁻¹ = 0.1 · [6 -7; -2 4] = [0.6 -0.7; -0.2 0.4]",
+            memoryTip = "Swap diagonal elements (a and d), negate off-diagonal elements (-b and -c), and divide all by determinant!",
+            isHighYield = true,
+            searchTags = listOf("inverse", "adjugate", "matrix", "linear")
+        ),
+        Formula(
+            id = "la_eigenvalues",
+            title = "Eigenvalues & Eigenvectors",
+            formulaDisplay = "A · v = λ · v   |   Characteristic Eq: det(A - λ · I) = 0",
+            description = "Finds non-zero vectors whose direction is invariant under linear transformation A, scaled by factor λ.",
+            category = MathCategory.LINEAR_ALGEBRA,
+            subcategory = "Spectral Theory",
+            variables = listOf("A: Square matrix", "λ: Eigenvalue scalar", "v: Non-zero eigenvector", "I: Identity matrix"),
+            example = "For [2 1; 1 2]: det[2-λ 1; 1 2-λ] = (2-λ)² - 1 = λ² - 4λ + 3 = 0 -> λ₁ = 3, λ₂ = 1",
+            memoryTip = "Subtract λ along the diagonal, then set determinant to 0 to find the characteristic polynomial roots.",
+            isHighYield = true,
+            searchTags = listOf("eigenvalue", "eigenvector", "spectral", "diagonalization")
+        ),
+
+        // COMPLEX NUMBERS
+        Formula(
+            id = "cn_polar_euler",
+            title = "Euler's Formula & Polar Representation",
+            formulaDisplay = "z = a + bi = r(cos θ + i sin θ) = r · e^(iθ)   |   e^(iπ) + 1 = 0",
+            description = "Expresses complex numbers in trigonometric and exponential form with modulus r = √(a² + b²) and argument θ = atan2(b, a).",
+            category = MathCategory.COMPLEX_NUMBERS,
+            subcategory = "Representations",
+            variables = listOf("r = |z| = √(a² + b²)", "θ: Argument in radians", "i: Imaginary unit (i² = -1)"),
+            example = "1 + i√3 -> r = √(1 + 3) = 2, θ = π/3 -> 2 e^(iπ/3)",
+            memoryTip = "e^(iθ) rotates a point on the unit circle by angle θ counterclockwise!",
+            isHighYield = true,
+            searchTags = listOf("euler", "polar", "complex", "modulus", "argument")
+        ),
+        Formula(
+            id = "cn_demoivre",
+            title = "De Moivre's Theorem & n-th Roots of Unity",
+            formulaDisplay = "[r(cos θ + i sin θ)]ⁿ = rⁿ(cos(nθ) + i sin(nθ))  |  wₖ = e^(i 2kπ / n)",
+            description = "Power and root extraction theorem for complex numbers evenly spaced along the unit circle.",
+            category = MathCategory.COMPLEX_NUMBERS,
+            subcategory = "Powers & Roots",
+            variables = listOf("n: Power integer", "k = 0, 1, ..., n-1 for n-th roots"),
+            example = "(cos(30°) + i sin(30°))³ = cos(90°) + i sin(90°) = i",
+            memoryTip = "To raise a complex number to power n, raise modulus to power n and MULTIPLY angle by n!",
+            isHighYield = true,
+            searchTags = listOf("demoivre", "roots of unity", "complex powers")
+        ),
+
+        // GEOMETRY
+        Formula(
+            id = "geom_3d_distance",
+            title = "3D Distance & Sphere Equation",
+            formulaDisplay = "d = √((x₂ - x₁)² + (y₂ - y₁)² + (z₂ - z₁)²)   |   (x - h)² + (y - k)² + (z - l)² = R²",
+            description = "Calculates Euclidean metric between 3D coordinate points and standard spherical geometry.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "3D Analytic Geometry",
+            variables = listOf("(x₁, y₁, z₁), (x₂, y₂, z₂): Points in ℝ³", "(h, k, l): Center of sphere", "R: Radius"),
+            example = "Distance from (0,0,0) to (2,3,6): d = √(4 + 9 + 36) = √49 = 7",
+            memoryTip = "Just 2D Pythagoras with one extra coordinate: Δx² + Δy² + Δz².",
+            isHighYield = true,
+            searchTags = listOf("distance", "3d", "sphere", "coordinates")
+        ),
+        Formula(
+            id = "geom_conics",
+            title = "Conic Sections (Ellipse & Hyperbola)",
+            formulaDisplay = "Ellipse: x²/a² + y²/b² = 1   |   Hyperbola: x²/a² - y²/b² = 1 (Asymptotes: y = ±(b/a)x)",
+            description = "Standard canonical equations for planar conic sections with major axis a and minor axis b.",
+            category = MathCategory.GEOMETRY,
             subcategory = "Conics",
-            formulaDisplay = "Circle:  (x - h)² + (y - k)² = r²\nParabola:  y² = 4ax  (Focus: (a, 0), Directrix: x = -a)\nEllipse:  x²/a² + y²/b² = 1  (a > b)\n  • Eccentricity: e = √(1 - b²/a²) < 1\n  • Foci: (±ae, 0),  Area = πab\nHyperbola:  x²/a² - y²/b² = 1\n  • Eccentricity: e = √(1 + b²/a²) > 1\n  • Asymptotes: y = ±(b/a)x",
-            description = "Standard cartesian equations, eccentricity, foci, and geometric properties of conic sections.",
-            variables = listOf("(h, k) = center/vertex", "a, b = semi-major/minor axes", "e = eccentricity"),
-            example = "Ellipse x²/25 + y²/9 = 1: a=5, b=3 → e = √(1 - 9/25) = 4/5 = 0.8, Foci = (±4, 0)",
-            tags = listOf("conics", "circle", "parabola", "ellipse", "hyperbola", "foci")
-        ),
-        Formula(
-            id = "geom_2d_areas_perimeters",
-            title = "2D Shapes: Areas & Perimeters",
-            category = FormulaCategory.GEOMETRY,
-            subcategory = "Mensuration",
-            formulaDisplay = "Circle:  Area = πr²,  Circumference = 2πr\nTriangle:  Area = ½ · base · height\nTrapezoid:  Area = ½(a + b)h\nParallelogram:  Area = b · h\nRegular n-gon:  Area = ½ · Perimeter · Apothem = ¼ n s² cot(π/n)",
-            description = "Area and perimeter calculations for two-dimensional planar figures.",
-            variables = listOf("r = radius", "a, b = parallel bases", "h = perpendicular height"),
-            example = "Trapezoid with bases 8 and 12, height 5: Area = 0.5(8 + 12)(5) = 50",
-            tags = listOf("area", "perimeter", "circle", "triangle", "trapezoid")
-        ),
-        Formula(
-            id = "geom_3d_solids",
-            title = "3D Solids: Volumes & Surface Areas",
-            category = FormulaCategory.GEOMETRY,
-            subcategory = "Mensuration",
-            formulaDisplay = "Sphere:  V = (4/3)πr³,  Surface Area = 4πr²\nCylinder:  V = πr²h,  Total Surface Area = 2πr(h + r)\nCone:  V = (1/3)πr²h,  Slant Height l = √(r² + h²)\n  • Lateral Area = πrl,  Total Area = πr(l + r)\nFrustum of Cone:  V = (1/3)πh (R² + r² + Rr)\nCuboid:  V = l·w·h,  Surface Area = 2(lw + lh + wh)",
-            description = "Volume, curved surface area, and total surface area formulas for three-dimensional geometry.",
-            variables = listOf("r, R = radii", "h = height", "l = slant height"),
-            example = "Sphere of radius 3: V = (4/3)π(27) = 36π ≈ 113.10, Area = 4π(9) = 36π ≈ 113.10",
-            tags = listOf("volume", "surface area", "sphere", "cylinder", "cone", "frustum")
-        ),
-        Formula(
-            id = "geom_vector_products",
-            title = "Vector Dot, Cross, & Scalar Triple Product",
-            category = FormulaCategory.GEOMETRY,
-            subcategory = "Vectors",
-            formulaDisplay = "Dot Product:  a · b = |a||b| cos θ = a₁b₁ + a₂b₂ + a₃b₃\nCross Product:  |a × b| = |a||b| sin θ\na × b = (a₂b₃ - a₃b₂)i - (a₁b₃ - a₃b₁)j + (a₁b₂ - a₂b₁)k\nScalar Triple Product (Volume of parallelepiped):\n[a b c] = a · (b × c) = det([a₁ a₂ a₃; b₁ b₂ b₃; c₁ c₂ c₃])\nAngle between vectors:  cos θ = (a · b) / (|a| |b|)",
-            description = "Vector algebra, projections, cross product determinants, and volume calculations.",
-            variables = listOf("a, b, c = 3D vectors", "θ = angle between vectors"),
-            example = "a = (1, 2, 3), b = (4, -5, 6) → a · b = 4 - 10 + 18 = 12",
-            tags = listOf("dot product", "cross product", "vectors", "scalar triple product")
+            variables = listOf("a: Semi-major axis", "b: Semi-minor axis", "c = √(a² - b²) for ellipse focal distance"),
+            example = "x²/25 + y²/9 = 1: a = 5, b = 3 -> Focal distance c = √(25 - 9) = 4",
+            memoryTip = "Plus sign in equation -> Ellipse (focal c² = a² - b²). Minus sign -> Hyperbola (focal c² = a² + b²). Signs are opposite!",
+            isHighYield = true,
+            searchTags = listOf("conic", "ellipse", "hyperbola", "foci", "asymptotes")
         ),
 
-        // ==========================================
-        // 6. STATISTICS & PROBABILITY
-        // ==========================================
+        // PROBABILITY & STATISTICS
         Formula(
-            id = "stat_mean_variance_sd",
-            title = "Mean, Variance, & Standard Deviation",
-            category = FormulaCategory.STATISTICS,
-            subcategory = "Descriptive",
-            formulaDisplay = "Mean (μ):  μ = (∑ xᵢ) / N\nPopulation Variance (σ²):  σ² = ∑ (xᵢ - μ)² / N = (∑ xᵢ² / N) - μ²\nSample Variance (s²):  s² = ∑ (xᵢ - x̄)² / (n - 1)\nStandard Deviation:  σ = √(Variance)\nCoefficient of Variation:  CV = (σ / μ) · 100%",
-            description = "Standard measures of central tendency and dispersion for statistical datasets.",
-            variables = listOf("xᵢ = individual values", "N = population size", "n = sample size"),
-            example = "Values {2, 4, 6}: Mean = 4, Variance = ((4+0+4)/3) = 8/3 ≈ 2.67, σ ≈ 1.63",
-            tags = listOf("mean", "variance", "standard deviation", "dispersion")
-        ),
-        Formula(
-            id = "stat_probability_bayes",
-            title = "Conditional Probability & Bayes' Theorem",
-            category = FormulaCategory.STATISTICS,
+            id = "stat_bayes",
+            title = "Bayes' Theorem & Conditional Probability",
+            formulaDisplay = "P(A | B) = [ P(B | A) · P(A) ] / P(B)",
+            description = "Calculates the posterior probability of event A given evidence B using prior and likelihood probabilities.",
+            category = MathCategory.STATISTICS,
             subcategory = "Probability",
-            formulaDisplay = "Addition Rule:  P(A ∪ B) = P(A) + P(B) - P(A ∩ B)\nConditional Probability:  P(A | B) = P(A ∩ B) / P(B)\nIndependent Events:  P(A ∩ B) = P(A) · P(B)\nBayes' Theorem:\nP(Aᵢ | B) = [P(B | Aᵢ) P(Aᵢ)] / [∑ [j=1 to k] P(B | Aⱼ) P(Aⱼ)]",
-            description = "Core rules of probability and updating prior probabilities using Bayes' Theorem.",
-            variables = listOf("P(A) = prior probability", "P(A|B) = posterior probability"),
-            example = "P(A)=0.5, P(B|A)=0.8, P(B|A')=0.1 → P(A|B) = (0.8·0.5)/[(0.8·0.5)+(0.1·0.5)] = 0.4/0.45 ≈ 0.889",
-            tags = listOf("probability", "bayes theorem", "conditional probability")
-        ),
-        Formula(
-            id = "stat_binomial_poisson",
-            title = "Binomial & Poisson Probability Distributions",
-            category = FormulaCategory.STATISTICS,
-            subcategory = "Distributions",
-            formulaDisplay = "Binomial Distribution B(n, p):\nP(X = k) = (ⁿCₖ) pᵏ (1 - p)ⁿ⁻ᵏ\n• Mean μ = n·p,  Variance σ² = n·p(1 - p)\n\nPoisson Distribution (λ):\nP(X = k) = (λᵏ e⁻ᵝ) / k!\n• Mean μ = λ,  Variance σ² = λ",
-            description = "Discrete probability models for independent Bernoulli trials and rare arrival events.",
-            variables = listOf("n = trials", "p = success probability", "k = number of successes", "λ = average rate"),
-            example = "10 coin flips, exactly 5 heads: P = (¹⁰C₅)(0.5)⁵(0.5)⁵ = 252/1024 ≈ 0.2461",
-            tags = listOf("binomial distribution", "poisson distribution", "bernoulli")
+            variables = listOf("P(A | B): Posterior probability", "P(B | A): Likelihood", "P(A): Prior", "P(B): Marginal evidence"),
+            example = "P(Disease) = 0.01, P(+|Disease) = 0.95, P(+|No) = 0.05 -> P(D|+) = (0.95 · 0.01) / ((0.95·0.01) + (0.05·0.99)) ≈ 0.161 (16.1%)",
+            memoryTip = "Posterior = (Likelihood × Prior) ÷ Evidence. Flips condition from B given A to A given B!",
+            isHighYield = true,
+            searchTags = listOf("bayes", "conditional", "probability", "statistics")
         ),
         Formula(
             id = "stat_normal_distribution",
             title = "Normal (Gaussian) Distribution",
-            category = FormulaCategory.STATISTICS,
+            formulaDisplay = "f(x) = (1 / (σ · √(2π))) · e^[ -(x - μ)² / (2σ²) ]   |   z = (x - μ) / σ",
+            description = "Probability density function of the continuous Gaussian bell curve centered at mean μ with standard deviation σ.",
+            category = MathCategory.STATISTICS,
             subcategory = "Distributions",
-            formulaDisplay = "Probability Density Function (PDF):\nf(x) = [1 / (σ √(2π))] · e^[ -½ ((x - μ) / σ)² ]\nStandard Normal Z-Score:\nZ = (X - μ) / σ\nEmpirical 68-95-99.7 Rule:\n• P(μ - σ ≤ X ≤ μ + σ) ≈ 68.27%\n• P(μ - 2σ ≤ X ≤ μ + 2σ) ≈ 95.45%\n• P(μ - 3σ ≤ X ≤ μ + 3σ) ≈ 99.73%",
-            description = "The central probability distribution in statistics and empirical confidence bands.",
-            variables = listOf("μ = mean", "σ = standard deviation", "Z = standardized z-score"),
-            example = "X = 115, μ = 100, σ = 15 → Z = (115 - 100)/15 = +1.0 (84th percentile)",
-            tags = listOf("normal distribution", "gaussian", "bell curve", "z score")
+            variables = listOf("μ: Population mean", "σ: Standard deviation", "z: Standardized z-score"),
+            example = "If μ = 100, σ = 15, x = 130: z = (130 - 100) / 15 = 2.0 (2 standard deviations above mean)",
+            memoryTip = "68 - 95 - 99.7 Empirical Rule: 68% within 1σ, 95% within 2σ, 99.7% within 3σ!",
+            isHighYield = true,
+            searchTags = listOf("normal", "gaussian", "bell curve", "z-score", "standard deviation")
         ),
-
-        // ==========================================
-        // 7. LINEAR ALGEBRA & MATRICES
-        // ==========================================
+        // STD 10TH & 12TH ADDITIONS
         Formula(
-            id = "mat_determinant_inverse",
-            title = "Matrix Determinants & Inverse Matrix",
-            category = FormulaCategory.MATRICES,
-            subcategory = "Matrices",
-            formulaDisplay = "For 2×2 Matrix A = [a b; c d]:\nDet(A) = |A| = ad - bc\nA⁻¹ = (1 / Det(A)) · [d -b; -c a]  (Det(A) ≠ 0)\n\nFor 3×3 Matrix A = [a b c; d e f; g h i]:\nDet(A) = a(ei - fh) - b(di - fg) + c(dh - eg)\nProperties:  Det(AB) = Det(A) · Det(B),  Det(A⁻¹) = 1 / Det(A)",
-            description = "Calculates matrix determinants, invertibility criteria, and analytic inverse formulas.",
-            variables = listOf("a, b, c, d... = matrix entries", "Det(A) = scalar determinant"),
-            example = "A = [4 7; 2 6] → Det = 24 - 14 = 10 → A⁻¹ = 0.1 · [6 -7; -2 4]",
-            tags = listOf("matrix", "determinant", "inverse", "invertible")
-        ),
-        Formula(
-            id = "mat_eigenvalues_characteristic",
-            title = "Eigenvalues & Characteristic Equation",
-            category = FormulaCategory.MATRICES,
-            subcategory = "Spectral Theory",
-            formulaDisplay = "Characteristic Equation:\ndet(A - λI) = 0\nEigenvector Condition:  A v = λ v  (v ≠ 0)\n\nFor 2×2 Matrix A:\nλ² - Tr(A) λ + Det(A) = 0\nwhere Tr(A) = a + d (Trace), Det(A) = ad - bc",
-            description = "Determines matrix eigenvalues (characteristic roots) and non-trivial eigenvectors.",
-            variables = listOf("A = square matrix", "λ = eigenvalue scalar", "I = identity matrix", "v = eigenvector"),
-            example = "A = [2 1; 1 2] → Tr=4, Det=3 → λ² - 4λ + 3 = 0 → λ₁ = 3, λ₂ = 1",
-            tags = listOf("eigenvalues", "eigenvectors", "characteristic equation", "trace")
+            id = "std10_real_hcf_lcm",
+            title = "HCF & LCM Relationship (Std 10)",
+            formulaDisplay = "HCF(a, b) · LCM(a, b) = a · b",
+            description = "Fundamental fundamental theorem of arithmetic property connecting the Highest Common Factor and Least Common Multiple of two positive integers.",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Number Systems",
+            variables = listOf("a, b: Positive integers"),
+            example = "For a = 12, b = 18 -> HCF = 6, LCM = 36 -> 6 · 36 = 216 = 12 · 18",
+            memoryTip = "Product of two numbers is always equal to the product of their HCF and LCM!",
+            isHighYield = true,
+            searchTags = listOf("hcf", "lcm", "real numbers", "std 10")
         ),
         Formula(
-            id = "mat_cramers_rule",
-            title = "Cramer's Rule for Linear Systems",
-            category = FormulaCategory.MATRICES,
-            subcategory = "Linear Systems",
-            formulaDisplay = "For system Ax = b:\nxᵢ = Det(Aᵢ) / Det(A)  (provided Det(A) ≠ 0)\nwhere Aᵢ is matrix A with column i replaced by column vector b.\n• If Det(A) ≠ 0: Unique solution\n• If Det(A) = 0 and Det(Aᵢ) = 0: Infinitely many solutions\n• If Det(A) = 0 and Det(Aᵢ) ≠ 0: Inconsistent (No solution)",
-            description = "Explicit determinant ratio method for solving systems of linear equations.",
-            variables = listOf("A = coefficient matrix", "b = constant vector", "xᵢ = variable values"),
-            example = "3x + 2y = 12, x - y = 1: D = -5, Dx = -14, Dy = -9 → x = 2.8, y = 1.8",
-            tags = listOf("cramers rule", "linear systems", "determinant")
-        ),
-
-        // ==========================================
-        // 8. COMPLEX NUMBERS
-        // ==========================================
-        Formula(
-            id = "cplx_euler_polar_form",
-            title = "Polar & Euler Form of Complex Numbers",
-            category = FormulaCategory.COMPLEX_NUMBERS,
-            subcategory = "Representations",
-            formulaDisplay = "Cartesian Form:  z = x + iy  (i² = -1)\nModulus (Magnitude):  |z| = r = √(x² + y²)\nArgument:  θ = arg(z) = atan2(y, x)\nPolar Form:  z = r(cos θ + i sin θ) = r cis(θ)\nEuler's Formula:  e^(iθ) = cos θ + i sin θ\nExponential Form:  z = r e^(iθ)\nEuler's Identity:  e^(iπ) + 1 = 0",
-            description = "Fundamental bridge between algebraic complex numbers, trigonometry, and complex exponentials.",
-            variables = listOf("x = real part", "y = imaginary part", "r = modulus", "θ = argument"),
-            example = "1 + i√3: r = √(1+3) = 2, θ = 60° (π/3) → z = 2 e^(iπ/3)",
-            tags = listOf("complex numbers", "polar form", "euler formula", "eulers identity")
+            id = "std10_mensuration_heron",
+            title = "Heron's Formula & Mensuration (Std 10)",
+            formulaDisplay = "Area = √[s(s - a)(s - b)(s - c)]   |   s = (a + b + c) / 2",
+            description = "Calculates the area of any triangle given its three side lengths without needing height or angles.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Mensuration",
+            variables = listOf("s: Semi-perimeter", "a, b, c: Triangle side lengths"),
+            example = "Sides 3, 4, 5 -> s = (3+4+5)/2 = 6 -> Area = √(6 · 3 · 2 · 1) = √36 = 6",
+            memoryTip = "Find semi-perimeter s first, then take square root of s times (s - side) for each side!",
+            isHighYield = true,
+            searchTags = listOf("heron", "triangle area", "mensuration", "std 10")
         ),
         Formula(
-            id = "cplx_demoivre_roots_of_unity",
-            title = "De Moivre's Theorem & nth Roots of Unity",
-            category = FormulaCategory.COMPLEX_NUMBERS,
-            subcategory = "Powers & Roots",
-            formulaDisplay = "De Moivre's Theorem:\n[r (cos θ + i sin θ)]ⁿ = rⁿ (cos(nθ) + i sin(nθ)) = rⁿ e^(i n θ)\n\nnth Roots of Complex Number z = r e^(iθ):\nz_k = ⁿ√r · [cos((θ + 2kπ)/n) + i sin((θ + 2kπ)/n)]\nfor k = 0, 1, 2, ..., n-1\n\nnth Roots of Unity (zⁿ = 1):\nω_k = e^(i 2kπ / n)  (Form vertices of a regular n-gon in the Argand plane)",
-            description = "Calculates integer powers and all distinct nth complex roots of unity.",
-            variables = listOf("n = positive integer degree", "k = root index (0 to n-1)"),
-            example = "Cube roots of 1: 1, e^(i 2π/3) = -½ + i√3/2, e^(i 4π/3) = -½ - i√3/2",
-            tags = listOf("de moivre", "roots of unity", "complex roots", "powers")
+            id = "std10_statistics_median",
+            title = "Median & Mode for Grouped Data (Std 10)",
+            formulaDisplay = "Median = L + [ ((n/2 - cf) / f) ] · h   |   Mode = L + [ (f₁ - f₀) / (2f₁ - f₀ - f₂) ] · h",
+            description = "Calculates central tendency estimates for continuous grouped frequency distribution tables in statistics.",
+            category = MathCategory.STATISTICS,
+            subcategory = "Statistics",
+            variables = listOf("L: Lower limit of median/modal class", "n: Total frequency", "cf: Cumulative frequency before median class", "f: Frequency of median class", "h: Class width"),
+            example = "Standard grouped frequency evaluation for class 10 board examinations.",
+            memoryTip = "Memorize the lower limit L, class size h, and frequency fractions for board viva and exams!",
+            isHighYield = true,
+            searchTags = listOf("median", "mode", "grouped data", "statistics", "std 10")
+        ),
+        Formula(
+            id = "std12_itf_properties",
+            title = "Inverse Trigonometric Properties (Std 12)",
+            formulaDisplay = "sin⁻¹x + cos⁻¹x = π/2   |   tan⁻¹x + cot⁻¹x = π/2   |   tan⁻¹x + tan⁻¹y = tan⁻¹((x + y)/(1 - xy))",
+            description = "Key domain/range and summation identities for inverse trigonometric functions in calculus.",
+            category = MathCategory.TRIGONOMETRY,
+            subcategory = "Inverse Trig",
+            variables = listOf("x, y: Real number arguments satisfying domain constraints"),
+            example = "tan⁻¹(1/2) + tan⁻¹(1/3) = tan⁻¹((1/2 + 1/3) / (1 - 1/6)) = tan⁻¹(1) = π/4",
+            memoryTip = "Complementary inverse ratios (sin & cos, tan & cot, sec & csc) always sum to π/2!",
+            isHighYield = true,
+            searchTags = listOf("inverse trigonometry", "std 12", "calculus", "identities")
+        ),
+        Formula(
+            id = "std12_vector_cross",
+            title = "Vector Cross Product & Area (Std 12)",
+            formulaDisplay = "a × b = |a||b|sinθ · n̂   |   Triangle Area = ½ |a × b|",
+            description = "Vector multiplication producing a perpendicular vector, used to find torque, normals, and triangle/parallelogram areas.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Vectors & 3D",
+            variables = listOf("a, b: 3D vectors", "θ: Angle between vectors", "n̂: Unit normal vector"),
+            example = "î × ĵ = k̂,  ĵ × k̂ = î,  k̂ × î = ĵ",
+            memoryTip = "Cyclic order for cross product: i × j = k, j × k = i, k × i = j. Reversing order gives negative sign!",
+            isHighYield = true,
+            searchTags = listOf("cross product", "vectors", "area", "std 12", "3d geometry")
+        ),
+        Formula(
+            id = "std12_standard_integrals",
+            title = "Standard Calculus Integrals (Std 12)",
+            formulaDisplay = "∫ dx/(x² - a²) = (1/2a)ln|(x-a)/(x+a)|   |   ∫ dx/√(x² + a²) = ln|x + √(x² + a²)|",
+            description = "Standard integral formulas frequently applied in board examinations for algebraic rational and irrational functions.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Standard Integrals",
+            variables = listOf("x: Variable", "a: Constant positive number"),
+            example = "∫ dx/(x² - 4) = (1/4) ln|(x-2)/(x+2)| + C",
+            memoryTip = "Notice the 1/(2a) factor in reciprocal square difference formulas!",
+            isHighYield = true,
+            searchTags = listOf("integrals", "calculus", "std 12", "standard formulas")
         )
     )
 
     val SOLVED_EQUATIONS: List<SolvedEquation> = listOf(
         SolvedEquation(
             id = "solved_quad_1",
-            title = "Quadratic Equation with Real Roots",
+            title = "Quadratic with Distinct Real Roots",
             topic = "Algebra",
-            problem = "Solve for x:  2x² - 4x - 6 = 0",
+            problem = "Solve for x:  x² - 5x + 6 = 0",
+            finalAnswer = "x = 3  or  x = 2",
+            keyTakeaway = "Always check if the equation factors easily by finding two numbers that multiply to c and add to b before using the full quadratic formula.",
             steps = listOf(
-                SolutionStep(1, "Identify coefficients in ax² + bx + c = 0", "a = 2, b = -4, c = -6"),
-                SolutionStep(2, "Calculate Discriminant Δ = b² - 4ac", "Δ = (-4)² - 4(2)(-6) = 16 + 48 = 64"),
-                SolutionStep(3, "Apply the Quadratic Formula x = (-b ± √Δ) / (2a)", "x = (-(-4) ± √64) / (2 · 2) = (4 ± 8) / 4"),
-                SolutionStep(4, "Separate into two real solutions", "x₁ = (4 + 8) / 4 = 12 / 4 = 3\nx₂ = (4 - 8) / 4 = -4 / 4 = -1")
-            ),
-            finalAnswer = "x = 3  or  x = -1",
-            keyTakeaway = "Since Δ = 64 > 0, the parabola intersects the x-axis at two distinct real points."
+                SolutionStep(1, "Identify coefficients for ax² + bx + c = 0", "a = 1,  b = -5,  c = 6"),
+                SolutionStep(2, "Compute the discriminant Δ = b² - 4ac", "Δ = (-5)² - 4(1)(6) = 25 - 24 = 1"),
+                SolutionStep(3, "Apply the quadratic formula x = (-b ± √Δ) / (2a)", "x = (-(-5) ± √1) / (2 · 1) = (5 ± 1) / 2"),
+                SolutionStep(4, "Split into two branches for plus and minus", "x₁ = (5 + 1)/2 = 3   and   x₂ = (5 - 1)/2 = 2")
+            )
         ),
         SolvedEquation(
             id = "solved_quad_complex",
-            title = "Quadratic Equation with Complex Roots",
+            title = "Quadratic with Complex Roots",
             topic = "Algebra",
-            problem = "Solve for x:  x² - 4x + 13 = 0",
+            problem = "Solve for x:  x² + 2x + 5 = 0",
+            finalAnswer = "x = -1 ± 2i",
+            keyTakeaway = "When the discriminant Δ < 0, roots always occur in complex conjugate pairs: -b/(2a) ± i(√|Δ|)/(2a).",
             steps = listOf(
-                SolutionStep(1, "Identify coefficients", "a = 1, b = -4, c = 13"),
-                SolutionStep(2, "Calculate Discriminant Δ = b² - 4ac", "Δ = (-4)² - 4(1)(13) = 16 - 52 = -36"),
-                SolutionStep(3, "Recognize negative discriminant (no real roots)", "√(-36) = √36 · √(-1) = 6i"),
-                SolutionStep(4, "Apply Quadratic Formula", "x = (-(-4) ± 6i) / (2 · 1) = (4 ± 6i) / 2 = 2 ± 3i")
-            ),
-            finalAnswer = "x = 2 + 3i  or  x = 2 - 3i",
-            keyTakeaway = "Complex roots always occur in conjugate pairs (a ± bi) when polynomial coefficients are real."
+                SolutionStep(1, "Identify quadratic coefficients", "a = 1,  b = 2,  c = 5"),
+                SolutionStep(2, "Calculate discriminant Δ = b² - 4ac", "Δ = 2² - 4(1)(5) = 4 - 20 = -16"),
+                SolutionStep(3, "Evaluate square root of negative discriminant", "√(-16) = √16 · √(-1) = 4i"),
+                SolutionStep(4, "Substitute into quadratic formula", "x = (-2 ± 4i) / (2 · 1) = -1 ± 2i")
+            )
         ),
         SolvedEquation(
-            id = "solved_system_2x2",
-            title = "System of 2 Linear Equations (Cramer's Rule)",
+            id = "solved_linear_system",
+            title = "2×2 Linear System (Cramer's Rule)",
             topic = "Linear Algebra",
-            problem = "Solve the system:\n1) 3x + 2y = 12\n2)  x -  y = 1",
+            problem = "Solve the system:\n3x + 2y = 12\nx - y = 1",
+            finalAnswer = "x = 2.8,  y = 1.8   (or x = 14/5, y = 9/5)",
+            keyTakeaway = "Cramer's rule is fast and reliable for 2x2 systems: x = Dx / D and y = Dy / D, provided determinant D ≠ 0.",
             steps = listOf(
-                SolutionStep(1, "Form matrix determinants", "D = |3  2;  1 -1| = 3(-1) - 2(1) = -3 - 2 = -5"),
-                SolutionStep(2, "Calculate Dx by replacing x-column with constants", "Dx = |12  2;  1 -1| = 12(-1) - 2(1) = -12 - 2 = -14"),
-                SolutionStep(3, "Calculate Dy by replacing y-column with constants", "Dy = |3  12;  1   1| = 3(1) - 12(1) = 3 - 12 = -9"),
-                SolutionStep(4, "Find x and y using Cramer's ratios", "x = Dx / D = -14 / -5 = 2.8 (or 14/5)\ny = Dy / D = -9 / -5 = 1.8 (or 9/5)")
-            ),
-            finalAnswer = "x = 2.8,  y = 1.8",
-            keyTakeaway = "Cramer's rule evaluates unique solutions when the main coefficient determinant D ≠ 0."
+                SolutionStep(1, "Compute the coefficient matrix determinant D", "D = det[3  2 ; 1 -1] = 3(-1) - 2(1) = -3 - 2 = -5"),
+                SolutionStep(2, "Construct Dx by replacing column 1 with constants [12; 1]", "Dx = det[12  2 ; 1 -1] = 12(-1) - 2(1) = -12 - 2 = -14"),
+                SolutionStep(3, "Construct Dy by replacing column 2 with constants [12; 1]", "Dy = det[3  12 ; 1  1] = 3(1) - 12(1) = 3 - 12 = -9"),
+                SolutionStep(4, "Solve for x and y by dividing determinants", "x = Dx / D = -14 / -5 = 14/5 = 2.8\ny = Dy / D = -9 / -5 = 9/5 = 1.8")
+            )
         ),
         SolvedEquation(
-            id = "solved_radical_simplification",
-            title = "Radical Simplification (Square Root)",
+            id = "solved_derivative_prod_chain",
+            title = "Derivative using Product & Chain Rule",
+            topic = "Calculus",
+            problem = "Find dy/dx for:  y = x² · sin(3x)",
+            finalAnswer = "dy/dx = 2x · sin(3x) + 3x² · cos(3x)",
+            keyTakeaway = "Differentiate step by step: (u·v)' = u'·v + u·v', and don't forget the inner derivative 3 from chain rule on sin(3x).",
+            steps = listOf(
+                SolutionStep(1, "Decompose into factor functions u and v", "u(x) = x²   and   v(x) = sin(3x)"),
+                SolutionStep(2, "Differentiate u(x)", "u'(x) = 2x"),
+                SolutionStep(3, "Differentiate v(x) using Chain Rule: d/dx[sin(g(x))] = cos(g(x)) · g'(x)", "v'(x) = cos(3x) · 3 = 3 cos(3x)"),
+                SolutionStep(4, "Combine using Product Rule: y' = u'v + uv'", "y' = (2x)(sin(3x)) + (x²)(3 cos(3x)) = 2x sin(3x) + 3x² cos(3x)")
+            )
+        ),
+        SolvedEquation(
+            id = "solved_integration_parts",
+            title = "Definite / Indefinite Integration by Parts",
+            topic = "Calculus",
+            problem = "Evaluate the integral:  ∫ x · eˣ dx",
+            finalAnswer = "x · eˣ - eˣ + C = eˣ(x - 1) + C",
+            keyTakeaway = "Select u using LIATE. Since algebraic (x) precedes exponential (eˣ), choose u = x so du becomes a simple constant derivative.",
+            steps = listOf(
+                SolutionStep(1, "Assign parts u and dv according to LIATE rule", "u = x   ->   du = dx\ndv = eˣ dx   ->   v = ∫ eˣ dx = eˣ"),
+                SolutionStep(2, "Apply Integration by Parts formula: ∫ u dv = u·v - ∫ v du", "∫ x eˣ dx = x · eˣ - ∫ eˣ dx"),
+                SolutionStep(3, "Evaluate the remaining simple integral ∫ eˣ dx", "∫ eˣ dx = eˣ"),
+                SolutionStep(4, "Combine terms and factor out eˣ", "x eˣ - eˣ + C = eˣ(x - 1) + C")
+            )
+        ),
+        SolvedEquation(
+            id = "solved_radical_rationalization",
+            title = "Radical Rationalization with Conjugate",
             topic = "Squares & Roots",
-            problem = "Simplify the radical completely:  √72",
+            problem = "Simplify and eliminate radicals from denominator:  6 / (√5 - √2)",
+            finalAnswer = "2(√5 + √2) = 2√5 + 2√2",
+            keyTakeaway = "Multiplying (√a - √b) by conjugate (√a + √b) yields the difference of squares a - b, which is purely rational.",
             steps = listOf(
-                SolutionStep(1, "Find prime factorization of 72", "72 = 2 · 36 = 2 · 6² = 2³ · 3²"),
-                SolutionStep(2, "Group into square pairs", "72 = (2² · 3²) · 2 = (4 · 9) · 2 = 36 · 2"),
-                SolutionStep(3, "Extract the square root of perfect squares", "√72 = √(36 · 2) = √36 · √2 = 6√2"),
-                SolutionStep(4, "Decimal approximation check", "6 · (1.4142) ≈ 8.4853")
-            ),
-            finalAnswer = "6√2  (≈ 8.4853)",
-            keyTakeaway = "Always factor out the largest perfect square factor to put a radical in simplest form."
+                SolutionStep(1, "Identify conjugate of denominator (√5 - √2)", "Conjugate = (√5 + √2)"),
+                SolutionStep(2, "Multiply numerator and denominator by conjugate", "[ 6 · (√5 + √2) ] / [ (√5 - √2)(√5 + √2) ]"),
+                SolutionStep(3, "Expand difference of squares in denominator: (√5)² - (√2)²", "5 - 2 = 3"),
+                SolutionStep(4, "Simplify fraction 6 / 3", "(6 / 3) · (√5 + √2) = 2(√5 + √2) = 2√5 + 2√2")
+            )
         ),
         SolvedEquation(
-            id = "solved_cbrt_simplification",
-            title = "Cube Root Simplification",
-            topic = "Squares & Roots",
-            problem = "Simplify the cube root:  ∛108",
+            id = "solved_matrix_determinant_3x3",
+            title = "Determinant of 3×3 Matrix",
+            topic = "Linear Algebra",
+            problem = "Compute determinant of:\n[ 1  2  3 ;\n  0  4  5 ;\n  1  0  6 ]",
+            finalAnswer = "det(A) = 22",
+            keyTakeaway = "Expand along the row or column containing the most zeros to minimize 2x2 minor calculations.",
             steps = listOf(
-                SolutionStep(1, "Prime factorize 108", "108 = 2² · 3³ = 4 · 27"),
-                SolutionStep(2, "Identify perfect cube factors (power of 3)", "27 is 3³"),
-                SolutionStep(3, "Extract the cube root of the perfect cube", "∛108 = ∛(27 · 4) = ∛27 · ∛4 = 3∛4"),
-                SolutionStep(4, "Verify decimal equivalent", "3 · (4)^(1/3) = 3 · 1.5874 ≈ 4.7622")
-            ),
-            finalAnswer = "3∛4  (≈ 4.7622)",
-            keyTakeaway = "For cube roots, extract factors that have exponents of 3 (cubes)."
-        ),
-        SolvedEquation(
-            id = "solved_derivative_product",
-            title = "Derivative by Product Rule",
-            topic = "Calculus",
-            problem = "Find f'(x) for:  f(x) = x² sin(x)",
-            steps = listOf(
-                SolutionStep(1, "Identify parts u(x) and v(x)", "u = x²,  v = sin(x)"),
-                SolutionStep(2, "Compute individual derivatives u' and v'", "u' = d/dx(x²) = 2x\nv' = d/dx(sin x) = cos(x)"),
-                SolutionStep(3, "Apply Product Rule formula (uv)' = u'v + uv'", "f'(x) = (2x)(sin x) + (x²)(cos x)"),
-                SolutionStep(4, "Factor out common terms", "f'(x) = x(2 sin x + x cos x)")
-            ),
-            finalAnswer = "f'(x) = 2x sin(x) + x² cos(x) = x(2 sin x + x cos x)",
-            keyTakeaway = "Remember never to simply multiply derivatives together: d/dx(uv) ≠ u'v'."
-        ),
-        SolvedEquation(
-            id = "solved_integral_substitution",
-            title = "Integration by Substitution (u-sub)",
-            topic = "Calculus",
-            problem = "Evaluate indefinite integral:  ∫ 2x cos(x²) dx",
-            steps = listOf(
-                SolutionStep(1, "Choose substitution variable u", "Let u = x²"),
-                SolutionStep(2, "Compute differential du", "du = 2x dx  →  dx = du / (2x)"),
-                SolutionStep(3, "Substitute into the integral", "∫ 2x cos(u) (du / 2x) = ∫ cos(u) du"),
-                SolutionStep(4, "Integrate with respect to u", "∫ cos(u) du = sin(u) + C"),
-                SolutionStep(5, "Back-substitute u = x²", "sin(x²) + C")
-            ),
-            finalAnswer = "sin(x²) + C",
-            keyTakeaway = "Look for an inner expression whose derivative appears as an outside multiplier factor."
-        ),
-        SolvedEquation(
-            id = "solved_integral_parts",
-            title = "Integration by Parts (LIATE Rule)",
-            topic = "Calculus",
-            problem = "Evaluate:  ∫ x e²ˣ dx",
-            steps = listOf(
-                SolutionStep(1, "Choose u and dv via LIATE rule", "u = x (algebraic),  dv = e²ˣ dx (exponential)"),
-                SolutionStep(2, "Differentiate u and integrate dv", "du = dx\nv = ∫ e²ˣ dx = ½ e²ˣ"),
-                SolutionStep(3, "Apply formula: ∫ u dv = uv - ∫ v du", "∫ x e²ˣ dx = x(½ e²ˣ) - ∫ (½ e²ˣ) dx"),
-                SolutionStep(4, "Evaluate remaining integral", "= ½ x e²ˣ - ½ (½ e²ˣ) + C = ½ x e²ˣ - ¼ e²ˣ + C"),
-                SolutionStep(5, "Factor out common terms", "= ¼ e²ˣ (2x - 1) + C")
-            ),
-            finalAnswer = "¼ e²ˣ (2x - 1) + C",
-            keyTakeaway = "Differentiating x reduces its algebraic degree to 1, leaving an elementary exponential integral."
+                SolutionStep(1, "Write cofactor expansion along row 1: a₁₁M₁₁ - a₁₂M₁₂ + a₁₃M₁₃", "det(A) = 1 · det[4 5; 0 6] - 2 · det[0 5; 1 6] + 3 · det[0 4; 1 0]"),
+                SolutionStep(2, "Evaluate first 2x2 minor: det[4 5; 0 6]", "4(6) - 5(0) = 24"),
+                SolutionStep(3, "Evaluate second 2x2 minor: det[0 5; 1 6]", "0(6) - 5(1) = -5"),
+                SolutionStep(4, "Evaluate third 2x2 minor: det[0 4; 1 0]", "0(0) - 4(1) = -4"),
+                SolutionStep(5, "Combine terms with alternating signs", "1(24) - 2(-5) + 3(-4) = 24 + 10 - 12 = 22")
+            )
         )
     )
 }

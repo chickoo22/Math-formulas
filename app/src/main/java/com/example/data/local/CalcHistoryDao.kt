@@ -1,9 +1,6 @@
 package com.example.data.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,9 +11,6 @@ interface CalcHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistory(item: CalcHistoryEntity)
 
-    @Query("DELETE FROM calc_history WHERE id = :id")
-    suspend fun deleteHistoryItem(id: Long)
-
     @Query("DELETE FROM calc_history")
-    suspend fun clearAllHistory()
+    suspend fun clearAll()
 }

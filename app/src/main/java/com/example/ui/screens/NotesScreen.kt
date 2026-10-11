@@ -1,15 +1,16 @@
 package com.example.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,8 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,22 +36,29 @@ fun NotesScreen(
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var showAddDialog by remember { mutableStateOf(false) }
-    var noteToEdit by remember { mutableStateOf<ExamNoteEntity?>(null) }
     var selectedCategoryFilter by remember { mutableStateOf("All") }
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingNote by remember { mutableStateOf<ExamNoteEntity?>(null) }
 
-    val categories = listOf("All", "Algebra", "Calculus", "Squares & Roots", "Trigonometry", "Geometry", "General")
+    val categories = listOf("All", "Algebra", "Calculus", "Trigonometry", "Formulas", "Exam Prep", "General")
 
     val filteredNotes = remember(notes, searchQuery, selectedCategoryFilter) {
         notes.filter { note ->
             val matchesCategory = selectedCategoryFilter == "All" || note.category.equals(selectedCategoryFilter, ignoreCase = true)
-            val matchesQuery = searchQuery.isBlank() ||
-                    note.title.contains(searchQuery, ignoreCase = true) ||
-                    note.content.contains(searchQuery, ignoreCase = true) ||
-                    note.formulaSnippet.contains(searchQuery, ignoreCase = true)
-            matchesCategory && matchesQuery
+            val matchesSearch = if (searchQuery.isBlank()) true
+            else note.title.contains(searchQuery, ignoreCase = true) || note.content.contains(searchQuery, ignoreCase = true)
+            matchesCategory && matchesSearch
         }
     }
+
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
 
     Box(
         modifier = modifier.fillMaxSize().testTag("notes_screen")
@@ -64,22 +71,26 @@ fun NotesScreen(
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Search your study notes & formulas...") },
+                    placeholder = { Text("Search exam notes, shortcuts, reminders...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { searchQuery = "" }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Clear")
+                                Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().testTag("notes_search_bar"),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("notes_search_input"),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     ),
                     singleLine = true
                 )
@@ -93,10 +104,23 @@ fun NotesScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     categories.forEach { cat ->
+                        val isSelected = selectedCategoryFilter == cat
                         FilterChip(
-                            selected = selectedCategoryFilter == cat,
+                            selected = isSelected,
                             onClick = { selectedCategoryFilter = cat },
-                            label = { Text(cat, fontSize = 12.sp) },
+                            label = {
+                                Text(
+                                    cat,
+                                    fontSize = 12.sp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
                             shape = RoundedCornerShape(8.dp)
                         )
                     }
@@ -106,49 +130,49 @@ fun NotesScreen(
             if (filteredNotes.isEmpty()) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .weight(1f)
                         .padding(32.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.EditNote,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(56.dp)
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = if (searchQuery.isNotEmpty()) "No notes match '$searchQuery'" else "No exam prep notes yet",
+                            text = if (searchQuery.isEmpty()) "No exam notes yet" else "No matching notes found",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Tap the + button to save your formula shortcuts, exam reminders, and math tricks for quick revision.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            text = "Tap the + button below to write custom formula shortcuts and study reminders.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .weight(1f)
                         .padding(horizontal = 16.dp),
-                    contentPadding = PaddingValues(top = 4.dp, bottom = 88.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(filteredNotes, key = { it.id }) { note ->
-                        NoteItemCard(
+                        ExamNoteCard(
                             note = note,
-                            onTogglePin = { onTogglePin(note.id) },
-                            onEdit = { noteToEdit = note },
-                            onDelete = { onDeleteNote(note.id) }
+                            onEdit = { editingNote = note },
+                            onDelete = { onDeleteNote(note.id) },
+                            onTogglePin = { onTogglePin(note.id) }
                         )
                     }
                 }
@@ -171,7 +195,7 @@ fun NotesScreen(
 
     if (showAddDialog) {
         NoteEditDialog(
-            existingNote = null,
+            initialNote = null,
             onDismiss = { showAddDialog = false },
             onSave = {
                 onAddNote(it)
@@ -180,42 +204,45 @@ fun NotesScreen(
         )
     }
 
-    noteToEdit?.let { note ->
+    editingNote?.let { note ->
         NoteEditDialog(
-            existingNote = note,
-            onDismiss = { noteToEdit = null },
-            onSave = { updated ->
-                onUpdateNote(updated)
-                noteToEdit = null
+            initialNote = note,
+            onDismiss = { editingNote = null },
+            onSave = {
+                onUpdateNote(it)
+                editingNote = null
             }
         )
     }
 }
 
 @Composable
-fun NoteItemCard(
+fun ExamNoteCard(
     note: ExamNoteEntity,
-    onTogglePin: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onTogglePin: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onEdit() }
             .testTag("note_card_${note.id}"),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         border = CardDefaults.outlinedCardBorder().copy(
             brush = androidx.compose.ui.graphics.SolidColor(
-                if (note.isPinned) MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-                else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+                if (note.isPinned) MaterialTheme.colorScheme.tertiary
+                else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
             )
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Category & Pin icon row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -223,41 +250,52 @@ fun NoteItemCard(
             ) {
                 Surface(
                     shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f))
                 ) {
                     Text(
                         text = note.category.uppercase(),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.8.sp
+                        letterSpacing = 0.6.sp
                     )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onTogglePin, modifier = Modifier.size(36.dp)) {
                         Icon(
-                            imageVector = if (note.isPinned) Icons.Default.PushPin else Icons.Default.OutlinedFlag,
+                            imageVector = Icons.Default.PushPin,
                             contentDescription = "Pin Note",
-                            tint = if (note.isPinned) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (note.isPinned) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
 
+                    IconButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText(note.title, "${note.title}\n\n${note.content}"))
+                            Toast.makeText(context, "Note copied to clipboard", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+
+                    IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+
                     IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
-                        Icon(
-                            imageVector = Icons.Default.DeleteOutline,
-                            contentDescription = "Delete Note",
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f)
-                        )
+                        Icon(Icons.Default.DeleteOutline, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            // Title
             Text(
                 text = note.title,
                 style = MaterialTheme.typography.titleMedium,
@@ -265,133 +303,166 @@ fun NoteItemCard(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            // Formula snippet if present
-            if (note.formulaSnippet.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f))
-                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = note.formulaSnippet,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.SemiBold
-                        ),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
-
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Content
-            Text(
-                text = note.content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 20.sp
-            )
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = note.content,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.Monospace,
+                        lineHeight = 21.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
 fun NoteEditDialog(
-    existingNote: ExamNoteEntity?,
+    initialNote: ExamNoteEntity?,
     onDismiss: () -> Unit,
     onSave: (ExamNoteEntity) -> Unit
 ) {
-    var title by remember { mutableStateOf(existingNote?.title ?: "") }
-    var category by remember { mutableStateOf(existingNote?.category ?: "Algebra") }
-    var formulaSnippet by remember { mutableStateOf(existingNote?.formulaSnippet ?: "") }
-    var content by remember { mutableStateOf(existingNote?.content ?: "") }
-    var isPinned by remember { mutableStateOf(existingNote?.isPinned ?: false) }
+    var title by remember { mutableStateOf(initialNote?.title ?: "") }
+    var content by remember { mutableStateOf(initialNote?.content ?: "") }
+    var category by remember { mutableStateOf(initialNote?.category ?: "Exam Prep") }
+    var isPinned by remember { mutableStateOf(initialNote?.isPinned ?: false) }
 
-    val mathSymbols = listOf("√", "∛", "π", "e", "²", "³", "ⁿ", "∫", "∑", "Δ", "θ", "±", "≠", "≤", "≥", "∞", "÷", "×", "∂", "∇")
+    val categories = listOf("Exam Prep", "Algebra", "Calculus", "Trigonometry", "Formulas", "General")
+    val mathShortcuts = listOf("√", "∛", "π", "e", "²", "³", "ⁿ", "∫", "∑", "Δ", "θ", "±", "≠", "≤", "≥", "∞", "÷", "×", "∂", "∇")
+
+    val tfColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurface,
         title = {
-            Text(
-                text = if (existingNote != null) "Edit Exam Note" else "New Exam Prep Note",
-                fontWeight = FontWeight.Bold
-            )
+            Text(if (initialNote == null) "New Exam Note" else "Edit Exam Note", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         },
         text = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 440.dp),
+                    .padding(vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Note Title (e.g. Trig Identities)") },
-                    modifier = Modifier.fillMaxWidth().testTag("note_input_title"),
+                    label = { Text("Title / Topic", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                     singleLine = true,
+                    colors = tfColors,
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 )
 
-                OutlinedTextField(
-                    value = category,
-                    onValueChange = { category = it },
-                    label = { Text("Category (e.g. Calculus, Algebra)") },
-                    modifier = Modifier.fillMaxWidth().testTag("note_input_category"),
-                    singleLine = true,
-                    shape = RoundedCornerShape(10.dp)
-                )
-
-                OutlinedTextField(
-                    value = formulaSnippet,
-                    onValueChange = { formulaSnippet = it },
-                    label = { Text("Key Formula (Optional)") },
-                    modifier = Modifier.fillMaxWidth().testTag("note_input_formula"),
-                    singleLine = true,
-                    shape = RoundedCornerShape(10.dp)
-                )
-
-                // Math symbol helper row
-                Text("Insert Math Symbol:", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                // Category selector
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    mathSymbols.forEach { sym ->
-                        AssistChip(
-                            onClick = { content += sym },
-                            label = { Text(sym, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace) }
+                    categories.forEach { cat ->
+                        val isSelected = category == cat
+                        FilterChip(
+                            selected = isSelected,
+                            onClick = { category = cat },
+                            label = {
+                                Text(
+                                    cat,
+                                    fontSize = 11.5.sp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurface,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp)
                         )
+                    }
+                }
+
+                // Math symbol helper bar
+                Column {
+                    Text(
+                        text = "Quick Math Symbols:",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        mathShortcuts.forEach { sym ->
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .padding(1.dp)
+                            ) {
+                                TextButton(
+                                    onClick = { content += sym },
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Text(
+                                        text = sym,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
 
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text("Notes & Study Tips") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(110.dp)
-                        .testTag("note_input_content"),
+                    label = { Text("Content / Formula / Cheat Sheet Notes", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    minLines = 4,
+                    maxLines = 8,
+                    colors = tfColors,
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp)
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Checkbox(
                         checked = isPinned,
                         onCheckedChange = { isPinned = it }
                     )
-                    Text("Pin to top for quick exam cramming", style = MaterialTheme.typography.bodyMedium)
+                    Text("Pin to top for fast exam cramming", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         },
@@ -399,31 +470,28 @@ fun NoteEditDialog(
             Button(
                 onClick = {
                     if (title.isNotBlank()) {
-                        val note = existingNote?.copy(
+                        val saved = initialNote?.copy(
                             title = title.trim(),
-                            category = category.trim(),
-                            formulaSnippet = formulaSnippet.trim(),
                             content = content.trim(),
+                            category = category,
                             isPinned = isPinned
                         ) ?: ExamNoteEntity(
                             title = title.trim(),
-                            category = category.trim(),
-                            formulaSnippet = formulaSnippet.trim(),
                             content = content.trim(),
+                            category = category,
                             isPinned = isPinned
                         )
-                        onSave(note)
+                        onSave(saved)
                     }
                 },
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.testTag("save_note_btn")
+                enabled = title.isNotBlank()
             ) {
-                Text("Save Note")
+                Text("Save")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = MaterialTheme.colorScheme.primary)
             }
         }
     )

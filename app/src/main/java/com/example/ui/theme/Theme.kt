@@ -1,83 +1,79 @@
 package com.example.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    onPrimary = DarkOnPrimary,
-    primaryContainer = DarkPrimaryContainer,
+    primary = AccentCyan,
+    onPrimary = Color(0xFF001F2F),
+    primaryContainer = AccentCyanContainer,
     onPrimaryContainer = Color(0xFFE0F2FE),
-    secondary = DarkSecondary,
-    onSecondary = Color(0xFF2E1065),
-    secondaryContainer = DarkSecondaryContainer,
-    onSecondaryContainer = Color(0xFFEDE9FE),
-    tertiary = DarkTertiary,
-    background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkSurfaceVariant,
-    onBackground = DarkTextPrimary,
-    onSurface = DarkTextPrimary,
-    onSurfaceVariant = DarkTextSecondary,
-    outline = DarkCardBorder
+    secondary = AccentIndigo,
+    onSecondary = Color(0xFF0C1033),
+    secondaryContainer = Color(0xFF263380),
+    onSecondaryContainer = Color(0xFFEEF2FF),
+    tertiary = AccentAmber,
+    onTertiary = Color(0xFF2E1A00),
+    tertiaryContainer = Color(0xFF4D3300),
+    onTertiaryContainer = Color(0xFFFEF3C7),
+    background = ObsidianDarkBg,
+    onBackground = TextPrimaryDark,
+    surface = SlateDarkSurface,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = SlateDarkSurfaceElevated,
+    onSurfaceVariant = TextSecondaryDark,
+    outline = SlateDarkBorder,
+    outlineVariant = Color(0xFF475569),
+    inverseSurface = Color(0xFFF1F5F9),
+    inverseOnSurface = Color(0xFF0F172A)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = LightPrimary,
-    onPrimary = LightOnPrimary,
-    primaryContainer = LightPrimaryContainer,
-    onPrimaryContainer = Color(0xFF0369A1),
-    secondary = LightSecondary,
+    primary = PrimaryLightBlue,
+    onPrimary = Color.White,
+    primaryContainer = PrimaryLightBlueContainer,
+    onPrimaryContainer = Color(0xFF001F2E),
+    secondary = IndigoLight,
     onSecondary = Color.White,
-    secondaryContainer = LightSecondaryContainer,
-    onSecondaryContainer = Color(0xFF5B21B6),
-    tertiary = LightTertiary,
-    background = LightBackground,
-    surface = LightSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onBackground = LightTextPrimary,
-    onSurface = LightTextPrimary,
-    onSurfaceVariant = LightTextSecondary,
-    outline = LightCardBorder
+    secondaryContainer = Color(0xFFE0E0FF),
+    onSecondaryContainer = Color(0xFF0C1060),
+    tertiary = AmberLight,
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFFFDDB3),
+    onTertiaryContainer = Color(0xFF2C1600),
+    background = PaperLightBg,
+    onBackground = TextPrimaryLight,
+    surface = CardLightSurface,
+    onSurface = TextPrimaryLight,
+    surfaceVariant = CardLightSurfaceElevated,
+    onSurfaceVariant = TextSecondaryLight,
+    outline = SlateLightBorder,
+    outlineVariant = Color(0xFF94A3B8),
+    inverseSurface = Color(0xFF1E293B),
+    inverseOnSurface = Color(0xFFF8FAFC)
 )
-
-enum class ThemeMode {
-    SYSTEM, DARK, LIGHT
-}
 
 @Composable
 fun MyApplicationTheme(
-    themeMode: ThemeMode = ThemeMode.DARK, // Dark by default for sleek night math study
-    dynamicColor: Boolean = false,
+    themeMode: ThemeMode = ThemeMode.LIGHT,
     content: @Composable () -> Unit
 ) {
-    val systemDark = isSystemInDarkTheme()
-    val isDark = when (themeMode) {
-        ThemeMode.SYSTEM -> systemDark
-        ThemeMode.DARK -> true
-        ThemeMode.LIGHT -> false
-    }
-
-    val context = LocalContext.current
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        isDark -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+        typography = Typography
+    ) {
+        // Ensure LocalContentColor explicitly defaults to onSurface across the entire app hierarchy
+        CompositionLocalProvider(
+            LocalContentColor provides colorScheme.onSurface,
+            content = content
+        )
+    }
 }
