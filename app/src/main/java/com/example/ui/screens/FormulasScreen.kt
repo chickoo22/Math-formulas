@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +31,7 @@ import com.example.data.model.MathCategory
 import com.example.data.repository.FormulaWithBookmark
 import com.example.ui.components.CategoryChipRow
 import com.example.ui.components.MathFormulaCard
+import com.example.util.PdfGenerator
 
 @Composable
 fun FormulasScreen(
@@ -41,8 +43,7 @@ fun FormulasScreen(
     var selectedCategory by remember { mutableStateOf(MathCategory.ALL) }
     var showOnlyBookmarked by remember { mutableStateOf(false) }
     var isMemorizeMode by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val filteredFormulas = remember(formulasWithBookmarks, searchQuery, selectedCategory, showOnlyBookmarked) {
         formulasWithBookmarks.filter { item ->
@@ -104,9 +105,7 @@ fun FormulasScreen(
 
                         Button(
                             onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Formula Sheet PDF downloaded successfully to Downloads folder!")
-                                }
+                                PdfGenerator.generateFormulaSheetPdf(context, formulasWithBookmarks)
                             },
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
@@ -296,11 +295,5 @@ fun FormulasScreen(
         }
     }
 
-    SnackbarHost(
-        hostState = snackbarHostState,
-        modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .padding(16.dp)
-    )
   }
 }

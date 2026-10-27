@@ -44,8 +44,7 @@ enum class NavDestination(
 ) {
     FORMULAS("Formulas", Icons.Default.Functions, "nav_formulas"),
     ROOTS("Square & Cube Roots", Icons.Default.SquareFoot, "nav_roots"),
-    CONVERTER("Unit Converter", Icons.Default.CompareArrows, "nav_converter"),
-    ADMIN("Admin Panel", Icons.Default.AdminPanelSettings, "nav_admin")
+    CONVERTER("Unit Converter", Icons.Default.CompareArrows, "nav_converter")
 }
 
 fun openPlayStoreRating(context: Context) {
@@ -65,6 +64,29 @@ fun openPlayStoreRating(context: Context) {
     }
 }
 
+fun shareApp(context: Context) {
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, "Check out MathVerse - Complete Mathematics Formula Handbook for Students! https://play.google.com/store/apps/details?id=${context.packageName}")
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "Share MathVerse via")
+    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(shareIntent)
+}
+
+fun sendFeedback(context: Context) {
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:support@mathverse.app")
+        putExtra(Intent.EXTRA_SUBJECT, "MathVerse Student Feedback")
+    }
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        // Fallback
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -78,9 +100,6 @@ fun MainScreen(
     var showHelpDialog by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
-    var showAdminPinDialog by remember { mutableStateOf(false) }
-    var adminPinInput by remember { mutableStateOf("") }
-    var adminPinError by remember { mutableStateOf(false) }
 
     val formulas by viewModel.formulas.collectAsStateWithLifecycle()
     val notes by viewModel.notes.collectAsStateWithLifecycle()
@@ -210,8 +229,8 @@ fun MainScreen(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
 
-                    // Navigation Items in Drawer (excluding Admin)
-                    NavDestination.entries.filter { it != NavDestination.ADMIN }.forEach { destination ->
+                    // Navigation Items in Drawer
+                    NavDestination.entries.forEach { destination ->
                         val isSelected = currentDestination == destination
                         NavigationDrawerItem(
                             icon = {
@@ -413,7 +432,7 @@ fun MainScreen(
                         }
                     }
 
-                    // 5. Admin Panel Section in Drawer (Secured with PIN)
+                    // 5. Send Feedback Section in Drawer
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -425,9 +444,9 @@ fun MainScreen(
                             .fillMaxWidth()
                             .clickable {
                                 scope.launch { drawerState.close() }
-                                showAdminPinDialog = true
+                                sendFeedback(context)
                             }
-                            .testTag("drawer_admin_item")
+                            .testTag("drawer_feedback_item")
                     ) {
                         Row(
                             modifier = Modifier
@@ -437,20 +456,66 @@ fun MainScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.AdminPanelSettings,
+                                imageVector = Icons.Default.Feedback,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp)
                             )
                             Column {
                                 Text(
-                                    text = "Admin Panel",
+                                    text = "Send Feedback",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = "Restricted • Staff & Teacher Access",
+                                    text = "Report bugs, request formulas or features",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+
+                    // 6. Share App Section in Drawer
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                scope.launch { drawerState.close() }
+                                shareApp(context)
+                            }
+                            .testTag("drawer_share_item")
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = "Share MathVerse",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Help fellow students study offline for free",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 11.sp
@@ -576,7 +641,7 @@ fun MainScreen(
                         tonalElevation = 4.dp,
                         modifier = Modifier.testTag("bottom_nav_bar")
                     ) {
-                        NavDestination.entries.filter { it != NavDestination.ADMIN }.forEach { destination ->
+                        NavDestination.entries.forEach { destination ->
                             val isSelected = currentDestination == destination
                             NavigationBarItem(
                                 selected = isSelected,
@@ -634,12 +699,7 @@ fun MainScreen(
                     NavDestination.CONVERTER -> {
                         UnitConverterScreen()
                     }
-                    NavDestination.ADMIN -> {
-                        AdminScreen(
-                            viewModel = viewModel,
-                            formulas = formulas
-                        )
-                    }
+
                 }
             }
         }
@@ -839,67 +899,4 @@ fun MainScreen(
         )
     }
 
-    // Admin Passcode Dialog
-    if (showAdminPinDialog) {
-        AlertDialog(
-            onDismissRequest = { showAdminPinDialog = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            textContentColor = MaterialTheme.colorScheme.onSurface,
-            title = {
-                Text("Admin Authentication", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        text = "Enter Admin Passcode to access management panel (Default PIN: 1234):",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    OutlinedTextField(
-                        value = adminPinInput,
-                        onValueChange = {
-                            adminPinInput = it
-                            adminPinError = false
-                        },
-                        label = { Text("Admin PIN") },
-                        isError = adminPinError,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth().testTag("admin_pin_input")
-                    )
-                    if (adminPinError) {
-                        Text(
-                            text = "Incorrect PIN. Access Denied.",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (adminPinInput.trim() == "1234") {
-                            showAdminPinDialog = false
-                            adminPinInput = ""
-                            adminPinError = false
-                            currentDestination = NavDestination.ADMIN
-                        } else {
-                            adminPinError = true
-                        }
-                    },
-                    modifier = Modifier.testTag("admin_pin_submit_btn")
-                ) {
-                    Text("Verify")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAdminPinDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
 }
