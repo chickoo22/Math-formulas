@@ -1,5 +1,6 @@
 package com.example.data.repository
 
+import com.example.data.model.EducationLevel
 import com.example.data.model.Formula
 import com.example.data.model.MathCategory
 import com.example.data.model.SolvedEquation
@@ -20,7 +21,8 @@ object MathDataProvider {
             example = "2³ · 2⁴ = 2³⁺⁴ = 2⁷ = 128",
             memoryTip = "Multiplying like bases? ADD powers. Dividing? SUBTRACT. Power of power? MULTIPLY.",
             isHighYield = true,
-            searchTags = listOf("powers", "indices", "multiplication", "rules")
+            searchTags = listOf("powers", "indices", "multiplication", "rules"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "roots_fractional_exp",
@@ -33,7 +35,8 @@ object MathDataProvider {
             example = "8²ᐟ³ = (³√8)² = 2² = 4",
             memoryTip = "Flower Power rule: Power on top (sun/flower), Root on bottom (underground root) -> a^(power/root).",
             isHighYield = true,
-            searchTags = listOf("fractional", "root", "power", "radical")
+            searchTags = listOf("fractional", "root", "power", "radical"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "roots_product_quotient",
@@ -46,7 +49,8 @@ object MathDataProvider {
             example = "√72 = √(36 · 2) = √36 · √2 = 6√2",
             memoryTip = "You can split roots under multiplication and division, but NEVER under addition: √(a+b) ≠ √a + √b!",
             isHighYield = true,
-            searchTags = listOf("simplify", "radical", "square root", "cube root")
+            searchTags = listOf("simplify", "radical", "square root", "cube root"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "roots_rationalization",
@@ -59,7 +63,8 @@ object MathDataProvider {
             example = "1 / (√5 + √2) = (√5 - √2) / (5 - 2) = (√5 - √2) / 3",
             memoryTip = "Conjugate flips the middle sign: (√a + √b)(√a - √b) = a - b. The radical completely vanishes from the bottom!",
             isHighYield = true,
-            searchTags = listOf("conjugate", "rationalize", "fraction", "denominator")
+            searchTags = listOf("conjugate", "rationalize", "fraction", "denominator"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "roots_nested_radicals",
@@ -72,7 +77,8 @@ object MathDataProvider {
             example = "√(5 + 2√6) = √(5 + √24) -> c = √(25 - 24) = 1 -> √((5+1)/2) + √((5-1)/2) = √3 + √2",
             memoryTip = "Before solving, check c = √(a² - b). If c is a clean whole number, de-nesting will work perfectly!",
             isHighYield = false,
-            searchTags = listOf("nested", "double root", "ramanujan", "surd")
+            searchTags = listOf("nested", "double root", "ramanujan", "surd"),
+            educationLevel = EducationLevel.ADVANCED
         ),
         Formula(
             id = "roots_sum_cubes",
@@ -85,7 +91,8 @@ object MathDataProvider {
             example = "x³ - 8 = x³ - 2³ = (x - 2)(x² + 2x + 4)",
             memoryTip = "SOAP mnemonic for signs: Same sign first, Opposite sign middle, Always Positive at the end!",
             isHighYield = true,
-            searchTags = listOf("cube", "factorization", "algebra", "identity")
+            searchTags = listOf("cube", "factorization", "algebra", "identity"),
+            educationLevel = EducationLevel.CLASS_10
         ),
 
         // ALGEBRA
@@ -100,7 +107,8 @@ object MathDataProvider {
             example = "x² - 5x + 6 = 0 -> a=1, b=-5, c=6 -> Δ = 25 - 24 = 1 -> x = (5 ± 1)/2 -> x = 3, 2",
             memoryTip = "Story mnemonic: A negative boy (-b) was undecided (±) about a radical party (√) because he was square (b²) and missed 4 awesome chicks (-4ac), and the party ended at 2 a.m. (2a).",
             isHighYield = true,
-            searchTags = listOf("quadratic", "roots", "parabola", "discriminant")
+            searchTags = listOf("quadratic", "roots", "parabola", "discriminant"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "alg_vieta",
@@ -113,7 +121,8 @@ object MathDataProvider {
             example = "For 2x² - 8x + 6 = 0: Sum = -(-8)/2 = 4, Product = 6/2 = 3",
             memoryTip = "Sum changes sign (-b/a); Product keeps the sign (+c/a). High-yield for rapid multiple-choice checks!",
             isHighYield = true,
-            searchTags = listOf("vieta", "sum of roots", "product of roots")
+            searchTags = listOf("vieta", "sum of roots", "product of roots"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "alg_binomial",
@@ -139,7 +148,8 @@ object MathDataProvider {
             example = "AP 3, 7, 11... d=4. a₁₀ = 3 + 9(4) = 39. S₁₀ = (10/2)(3 + 39) = 210",
             memoryTip = "AP sums are average of first and last multiplied by count: S = n · (first + last) / 2.",
             isHighYield = true,
-            searchTags = listOf("sequence", "series", "progression", "ap", "gp")
+            searchTags = listOf("sequence", "series", "progression", "ap", "gp"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "alg_log_laws",
@@ -167,7 +177,8 @@ object MathDataProvider {
             example = "If sin θ = 3/5 in Quadrant I: cos θ = √(1 - 9/25) = 4/5",
             memoryTip = "Divide sin² + cos² = 1 by cos² to get 1 + tan² = sec². Divide by sin² to get 1 + cot² = csc²!",
             isHighYield = true,
-            searchTags = listOf("sin", "cos", "tan", "pythagoras", "unit circle")
+            searchTags = listOf("sin", "cos", "tan", "pythagoras", "unit circle"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "trig_angle_sum",
@@ -206,7 +217,8 @@ object MathDataProvider {
             example = "a = 5, b = 7, C = 60°: c² = 25 + 49 - 2(5)(7)(0.5) = 74 - 35 = 39 -> c = √39",
             memoryTip = "Law of Cosines is just Pythagorean theorem with a correction term: c² = a² + b² - 2ab·cos(C).",
             isHighYield = true,
-            searchTags = listOf("triangle", "sine rule", "cosine rule", "geometry")
+            searchTags = listOf("triangle", "sine rule", "cosine rule", "geometry"),
+            educationLevel = EducationLevel.CLASS_10
         ),
 
         // CALCULUS
@@ -260,7 +272,8 @@ object MathDataProvider {
             example = "eˣ = 1 + x + x²/2! + x³/3! + ... ; sin x = x - x³/3! + x⁵/5! - ...",
             memoryTip = "Maclaurin is simply Taylor series centered at a = 0. Notice odd functions (sin) have odd powers, even (cos) have even powers!",
             isHighYield = true,
-            searchTags = listOf("taylor", "maclaurin", "series", "approximation")
+            searchTags = listOf("taylor", "maclaurin", "series", "approximation"),
+            educationLevel = EducationLevel.ADVANCED
         ),
         Formula(
             id = "calc_ode_first_order",
@@ -273,7 +286,8 @@ object MathDataProvider {
             example = "y' + (1/x)y = x² -> I(x) = e^(ln x) = x -> y = (1/x) ∫ x³ dx = x³/4 + C/x",
             memoryTip = "Multiply entire equation by I(x) = e^(∫P dx) to make the left side a pure product rule derivative: d/dx[I · y]!",
             isHighYield = false,
-            searchTags = listOf("ode", "differential equations", "integrating factor")
+            searchTags = listOf("ode", "differential equations", "integrating factor"),
+            educationLevel = EducationLevel.ADVANCED
         ),
 
         // LINEAR ALGEBRA
@@ -327,7 +341,8 @@ object MathDataProvider {
             example = "For [2 1; 1 2]: det[2-λ 1; 1 2-λ] = (2-λ)² - 1 = λ² - 4λ + 3 = 0 -> λ₁ = 3, λ₂ = 1",
             memoryTip = "Subtract λ along the diagonal, then set determinant to 0 to find the characteristic polynomial roots.",
             isHighYield = true,
-            searchTags = listOf("eigenvalue", "eigenvector", "spectral", "diagonalization")
+            searchTags = listOf("eigenvalue", "eigenvector", "spectral", "diagonalization"),
+            educationLevel = EducationLevel.ADVANCED
         ),
 
         // COMPLEX NUMBERS
@@ -425,7 +440,8 @@ object MathDataProvider {
             example = "For a = 12, b = 18 -> HCF = 6, LCM = 36 -> 6 · 36 = 216 = 12 · 18",
             memoryTip = "Product of two numbers is always equal to the product of their HCF and LCM!",
             isHighYield = true,
-            searchTags = listOf("hcf", "lcm", "real numbers", "std 10")
+            searchTags = listOf("hcf", "lcm", "real numbers", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "std10_mensuration_heron",
@@ -438,7 +454,8 @@ object MathDataProvider {
             example = "Sides 3, 4, 5 -> s = (3+4+5)/2 = 6 -> Area = √(6 · 3 · 2 · 1) = √36 = 6",
             memoryTip = "Find semi-perimeter s first, then take square root of s times (s - side) for each side!",
             isHighYield = true,
-            searchTags = listOf("heron", "triangle area", "mensuration", "std 10")
+            searchTags = listOf("heron", "triangle area", "mensuration", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "std10_statistics_median",
@@ -451,7 +468,8 @@ object MathDataProvider {
             example = "Standard grouped frequency evaluation for class 10 board examinations.",
             memoryTip = "Memorize the lower limit L, class size h, and frequency fractions for board viva and exams!",
             isHighYield = true,
-            searchTags = listOf("median", "mode", "grouped data", "statistics", "std 10")
+            searchTags = listOf("median", "mode", "grouped data", "statistics", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
         ),
         Formula(
             id = "std12_itf_properties",
@@ -490,9 +508,223 @@ object MathDataProvider {
             example = "∫ dx/(x² - 4) = (1/4) ln|(x-2)/(x+2)| + C",
             memoryTip = "Notice the 1/(2a) factor in reciprocal square difference formulas!",
             isHighYield = true,
-            searchTags = listOf("integrals", "calculus", "std 12", "standard formulas")
+            searchTags = listOf("integrals", "calculus", "std 12", "standard formulas"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        // STD 10 ADDITIONAL CORE FORMULAS
+        Formula(
+            id = "std10_coord_distance_section",
+            title = "Distance & Section Formula (Std 10)",
+            formulaDisplay = "d = √[(x₂ - x₁)² + (y₂ - y₁)²]   |   P(x, y) = [ (m₁x₂ + m₂x₁)/(m₁+m₂), (m₁y₂ + m₂y₁)/(m₁+m₂) ]",
+            description = "Fundamental 2D coordinate geometry formulas for calculating Euclidean distance, internal division ratio, and midpoint ((x₁+x₂)/2, (y₁+y₂)/2).",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Coordinate Geometry",
+            variables = listOf("A(x₁, y₁), B(x₂, y₂): Endpoints", "m₁ : m₂: Division ratio", "P(x, y): Dividing point"),
+            example = "Distance between (1, 2) and (4, 6): √[(4-1)² + (6-2)²] = √(9 + 16) = √25 = 5",
+            memoryTip = "Distance is just Pythagoras on coordinate deltas! In section formula, weight m₁ multiplies the opposite point coordinate x₂.",
+            isHighYield = true,
+            searchTags = listOf("coordinate", "distance", "section", "midpoint", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_circle_sector_segment",
+            title = "Circle Sector, Arc & Segment (Std 10)",
+            formulaDisplay = "Arc = (θ/360°) · 2πr   |   Sector Area = (θ/360°) · πr²   |   Segment = Sector - Triangle",
+            description = "Formulas for circular sectors, intercepted arc length, and segments subtending central angle θ in degrees.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Areas Related to Circles",
+            variables = listOf("r: Circle radius", "θ: Central angle in degrees"),
+            example = "For r = 7 cm, θ = 90°: Sector Area = (90/360) · (22/7) · 49 = ¼ · 154 = 38.5 cm²",
+            memoryTip = "Think fractions of the whole circle: θ/360° scales circumference (2πr) for arc length, and scales area (πr²) for sector!",
+            isHighYield = true,
+            searchTags = listOf("circle", "sector", "arc length", "segment", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_mensuration_3d",
+            title = "3D Mensuration: Cylinder, Cone & Sphere (Std 10)",
+            formulaDisplay = "Cylinder: 2πrh, πr²h  |  Cone: πrl, ⅓πr²h (l=√(r²+h²))  |  Sphere: 4πr², ⁴⁄₃πr³",
+            description = "Curved surface areas, total surface areas, and volumes for cylinders, right circular cones, and spheres/hemispheres.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Mensuration 3D",
+            variables = listOf("r: Base radius", "h: Height", "l: Slant height of cone"),
+            example = "Cone with r=3, h=4 -> Slant height l=√(9+16)=5 -> CSA = π(3)(5) = 15π, Volume = ⅓π(9)(4) = 12π",
+            memoryTip = "A cone always has exactly ⅓ the volume of a cylinder with identical base radius and vertical height!",
+            isHighYield = true,
+            searchTags = listOf("cylinder", "cone", "sphere", "volume", "surface area", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_stat_empirical",
+            title = "Empirical Statistics & Mean Formulas (Std 10)",
+            formulaDisplay = "Mode = 3 Median - 2 Mean   |   Direct: x̄ = ∑(fᵢxᵢ)/∑fᵢ   |   Assumed: x̄ = a + ∑(fᵢdᵢ)/∑fᵢ",
+            description = "Empirical relationship connecting the three measures of central tendency, along with grouped mean calculation methods.",
+            category = MathCategory.STATISTICS,
+            subcategory = "Statistics",
+            variables = listOf("x̄: Mean", "fᵢ: Class frequency", "xᵢ: Class mark", "a: Assumed mean", "dᵢ: Deviation (xᵢ - a)"),
+            example = "If Mean = 20 and Median = 22: Mode = 3(22) - 2(20) = 66 - 40 = 26",
+            memoryTip = "Mnemonic: 3 Medals (Median) minus 2 Meals (Mean) equals 1 Modern (Mode)! Order from 3 to 2 to 1.",
+            isHighYield = true,
+            searchTags = listOf("mean", "mode", "median", "empirical", "assumed mean", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_linear_consistency",
+            title = "Linear Systems Consistency & Solvability (Std 10)",
+            formulaDisplay = "Unique: a₁/a₂ ≠ b₁/b₂  |  Infinite: a₁/a₂ = b₁/b₂ = c₁/c₂  |  No Sol: a₁/a₂ = b₁/b₂ ≠ c₁/c₂",
+            description = "Determines whether a pair of linear equations a₁x + b₁y + c₁ = 0 and a₂x + b₂y + c₂ = 0 intersects, coincides, or is parallel.",
+            category = MathCategory.ALGEBRA,
+            subcategory = "Linear Systems",
+            variables = listOf("a₁, a₂: Coefficients of x", "b₁, b₂: Coefficients of y", "c₁, c₂: Constant terms"),
+            example = "2x + 3y = 9 and 4x + 6y = 18 -> 2/4 = 3/6 = 9/18 -> Infinitely many coincident solutions",
+            memoryTip = "Unique = intersecting lines (cross at 1 point); Infinite = coincident lines (exact same line); Inconsistent = parallel lines (never cross)!",
+            isHighYield = true,
+            searchTags = listOf("linear equations", "consistency", "unique solution", "parallel lines", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_circle_tangents",
+            title = "Circle Tangents & Contact Theorems (Std 10)",
+            formulaDisplay = "PA = PB (tangents from external point P)   |   Radius ⊥ Tangent (OP ⊥ PT)",
+            description = "Key Euclidean circle theorems: tangents from an external point are equal in length, and radius to point of contact is perpendicular.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Circles",
+            variables = listOf("P: External point", "A, B: Points of tangency", "O: Center", "T: Contact point"),
+            example = "If tangent PT = 12 cm and circle radius OP = 5 cm, hypotenuse OT = √(12² + 5²) = 13 cm",
+            memoryTip = "Radius meets tangent at a clean 90° right angle. Tangent pair from any outside point forms symmetric kite!",
+            isHighYield = true,
+            searchTags = listOf("circle", "tangent", "secant", "theorems", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+        Formula(
+            id = "std10_trig_values_complementary",
+            title = "Trig Exact Table & Complementary Angles (Std 10)",
+            formulaDisplay = "sin(90°-θ) = cos θ | tan(90°-θ) = cot θ | sin: 0, ½, 1/√2, √3/2, 1 (0° to 90°)",
+            description = "Exact trigonometric values for 0°, 30°, 45°, 60°, 90° and complementary angle transformation co-function rules.",
+            category = MathCategory.TRIGONOMETRY,
+            subcategory = "Specific Angles",
+            variables = listOf("θ: Acute angle (0° ≤ θ ≤ 90°)"),
+            example = "sin 30° = cos(90° - 30°) = cos 60° = 1/2   |   tan 45° = 1",
+            memoryTip = "Hand rule: sin θ = √(fingers below)/2 for 0°, 30°, 45°, 60°, 90°. For cos, count fingers above!",
+            isHighYield = true,
+            searchTags = listOf("trig table", "complementary", "sin 30", "cos 60", "std 10"),
+            educationLevel = EducationLevel.CLASS_10
+        ),
+
+        // STD 12 ADDITIONAL CORE FORMULAS
+        Formula(
+            id = "std12_def_integral_kings",
+            title = "Definite Integrals: King's Property (Std 12)",
+            formulaDisplay = "∫ₐᵇ f(x) dx = ∫ₐᵇ f(a + b - x) dx   |   ∫₀ᵃ f(x) dx = ∫₀ᵃ f(a - x) dx",
+            description = "High-yield definite integral symmetry property. Adding original integral I to transformed integral produces clean cancellations.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Definite Integrals",
+            variables = listOf("f: Integrable function on [a, b]", "a, b: Integration limits"),
+            example = "∫₀^(π/2) (sin x)/(sin x + cos x) dx: Applying King's gives cos x in numerator -> 2I = ∫₀^(π/2) 1 dx = π/2 -> I = π/4",
+            memoryTip = "King's Rule: Replace x with (a + b - x), add I + I = 2I. In board exams, 90% of definite integral questions crack with this!",
+            isHighYield = true,
+            searchTags = listOf("definite integrals", "kings rule", "properties", "std 12", "calculus"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_special_integrals_roots",
+            title = "Special Quadratic Root Integrals (Std 12)",
+            formulaDisplay = "∫ √(a² - x²) dx = (x/2)√(a² - x²) + (a²/2)sin⁻¹(x/a) + C   |   ∫ dx/(x² + a²) = (1/a)tan⁻¹(x/a) + C",
+            description = "Standard 9 indefinite integrals for radical and rational quadratic expressions in higher calculus.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Standard Integrals",
+            variables = listOf("x: Variable", "a: Positive real constant"),
+            example = "∫ √(9 - x²) dx = (x/2)√(9 - x²) + (9/2) sin⁻¹(x/3) + C",
+            memoryTip = "All three √(a²-x²), √(x²-a²), √(x²+a²) start with (x/2)·[original square root], then (a²/2)·[associated inverse or log function]!",
+            isHighYield = true,
+            searchTags = listOf("special integrals", "quadratic", "standard integrals", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_3d_line_shortest_distance",
+            title = "3D Lines & Shortest Distance Between Skew Lines (Std 12)",
+            formulaDisplay = "r = a + λb  |  (x-x₁)/a = (y-y₁)/b = (z-z₁)/c  |  d = | (b₁ × b₂) · (a₂ - a₁) | / | b₁ × b₂ |",
+            description = "Vector and Cartesian equations of lines in 3D space, and the shortest distance formula between two non-intersecting skew lines.",
+            category = MathCategory.GEOMETRY,
+            subcategory = "3D Geometry",
+            variables = listOf("a₁, a₂: Position vectors of line points", "b₁, b₂: Direction vectors", "d: Perpendicular distance"),
+            example = "If b₁ × b₂ = 0, lines are parallel, and distance formula becomes d = | b × (a₂ - a₁) | / | b |",
+            memoryTip = "Numerator is scalar triple product of connecting vector and cross direction; denominator is magnitude of cross direction vector!",
+            isHighYield = true,
+            searchTags = listOf("3d geometry", "skew lines", "shortest distance", "vector equation", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_matrix_adjoint_properties",
+            title = "Adjoint & Matrix Inversion Theorems (Std 12)",
+            formulaDisplay = "A · (adj A) = |A| · I   |   |adj A| = |A|ⁿ⁻¹   |   adj(AB) = (adj B)(adj A)",
+            description = "Crucial properties of matrix adjoints, determinant scaling, and multiplicative inverse A⁻¹ = (1/|A|) adj(A).",
+            category = MathCategory.LINEAR_ALGEBRA,
+            subcategory = "Matrices",
+            variables = listOf("A, B: Square matrices of order n", "I: Identity matrix", "|A|: Determinant"),
+            example = "For a 3×3 matrix with |A| = 4: |adj A| = 4³⁻¹ = 4² = 16   |   |adj(adj A)| = |A|⁽ⁿ⁻¹⁾² = 4⁴ = 256",
+            memoryTip = "|adj A| always raises determinant |A| to power (n - 1). For order 3, it is squared!",
+            isHighYield = true,
+            searchTags = listOf("adjoint", "determinant", "matrix inverse", "properties", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_lmvt_rolles",
+            title = "Rolle's & Lagrange's Mean Value Theorem (Std 12)",
+            formulaDisplay = "LMVT: f'(c) = [f(b) - f(a)] / (b - a)   |   Rolle's: f(a) = f(b) => f'(c) = 0",
+            description = "Fundamental differential calculus theorems guaranteeing a point c in (a, b) where tangent is parallel to the secant line.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Theorems",
+            variables = listOf("f: Continuous on [a, b], differentiable on (a, b)", "c ∈ (a, b)"),
+            example = "f(x) = x² on [1, 3]: f'(c) = 2c = (9 - 1)/(3 - 1) = 4 -> c = 2 ∈ (1, 3)",
+            memoryTip = "LMVT means instantaneous speed at some moment c must equal average speed over the entire interval [a, b]!",
+            isHighYield = true,
+            searchTags = listOf("rolles", "lmvt", "mean value", "calculus", "theorems", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_diff_eq_homogeneous",
+            title = "Differential Equations: Homogeneous & Linear (Std 12)",
+            formulaDisplay = "dy/dx = f(y/x) -> Put y = vx   |   LDE: dy/dx + Py = Q -> y·I.F. = ∫ Q·I.F. dx + C",
+            description = "Board exam analytical techniques for solving homogeneous equations (degree-equal substitution) and first-order linear differential equations.",
+            category = MathCategory.CALCULUS,
+            subcategory = "Differential Equations",
+            variables = listOf("I.F.: Integrating factor = e^(∫P dx)", "v: Substituted variable y/x"),
+            example = "dy/dx + (2/x)y = x -> I.F. = e^(2 ln x) = x² -> y · x² = ∫ x³ dx = x⁴/4 + C -> y = x²/4 + C/x²",
+            memoryTip = "Homogeneous? Replace y with vx and dy/dx with v + x(dv/dx). Linear? Find I.F. = e^(∫P dx) first!",
+            isHighYield = true,
+            searchTags = listOf("differential equations", "homogeneous", "integrating factor", "lde", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_prob_total_binomial",
+            title = "Probability: Independent Events & Binomial Distribution (Std 12)",
+            formulaDisplay = "P(A ∩ B) = P(A) · P(B)   |   P(X = k) = ⁿCₖ pᵏ qⁿ⁻ᵏ   |   Mean = np, Var = npq",
+            description = "Multiplication rule for independent events, Law of Total Probability P(A) = ∑P(Eᵢ)P(A|Eᵢ), and Bernoulli binomial distribution.",
+            category = MathCategory.STATISTICS,
+            subcategory = "Probability",
+            variables = listOf("n: Number of trials", "k: Number of successes", "p: Probability of success", "q = 1 - p"),
+            example = "Tossing coin 5 times (p=0.5): P(exactly 3 heads) = ⁵C₃ (0.5)³ (0.5)² = 10 · (1/32) = 10/32 = 5/16",
+            memoryTip = "Independent means multiply directly: P(A ∩ B) = P(A)P(B). For Binomial: ⁿCₖ · pᵏ · qⁿ⁻ᵏ!",
+            isHighYield = true,
+            searchTags = listOf("probability", "independent", "binomial distribution", "bernoulli", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
+        ),
+        Formula(
+            id = "std12_vector_scalar_triple",
+            title = "Vector Projection & Scalar Triple Product (Std 12)",
+            formulaDisplay = "Projection of a on b = (a · b) / |b|   |   [a b c] = a · (b × c) = det[a₁ a₂ a₃; b₁ b₂ b₃; c₁ c₂ c₃]",
+            description = "Formulas for vector orthogonal projection length and scalar triple box product representing parallelepiped volume (0 if coplanar).",
+            category = MathCategory.GEOMETRY,
+            subcategory = "Vectors",
+            variables = listOf("a, b, c: 3D vectors", "[a b c]: Box product scalar"),
+            example = "Vectors are coplanar if and only if their scalar triple product [a b c] = 0",
+            memoryTip = "Projection on b divides by magnitude of b! Box product [a b c] is computed as a fast 3×3 determinant.",
+            isHighYield = true,
+            searchTags = listOf("vectors", "projection", "scalar triple product", "coplanar", "box product", "std 12"),
+            educationLevel = EducationLevel.CLASS_12
         )
-    )
+    ) + PhysicsDataProvider.FORMULAS
 
     val SOLVED_EQUATIONS: List<SolvedEquation> = listOf(
         SolvedEquation(

@@ -40,9 +40,10 @@ object PdfGenerator {
         }
 
         var y = 40f
-        canvas.drawText("MathVerse - Complete Formula Sheet (Std 10th & 12th)", 40f, y, titlePaint)
+        val subjectLabel = if (formulas.any { it.formula.subject == com.example.data.model.Subject.PHYSICS }) "Class 12 Physics & Math" else "Mathematics (Std 10th & 12th)"
+        canvas.drawText("MathVerse - Formula Sheet: $subjectLabel", 40f, y, titlePaint)
         y += 18f
-        canvas.drawText("Generated offline for student board exam preparation", 40f, y, subPaint)
+        canvas.drawText("Generated offline for student board exam & entrance preparation", 40f, y, subPaint)
         y += 28f
 
         for (item in formulas) {

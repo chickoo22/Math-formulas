@@ -55,6 +55,7 @@ fun UnitConverterScreen(
 
     val convertedResult: String = remember(inputValue, fromUnitIndex, toUnitIndex, selectedCategory) {
         if (unitsForCategory.isEmpty()) return@remember "0"
+        if (inputValue.isBlank()) return@remember "—"
         val fromUnit = unitsForCategory.getOrNull(fromUnitIndex) ?: unitsForCategory[0]
         val toUnit = unitsForCategory.getOrNull(toUnitIndex) ?: unitsForCategory[0]
 

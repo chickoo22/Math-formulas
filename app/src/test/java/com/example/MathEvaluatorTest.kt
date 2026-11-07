@@ -1,7 +1,7 @@
 package com.example
 
 import com.example.data.model.UnitCategory
-import com.example.data.model.UnitConverterData
+import com.example.data.repository.UnitConverterData
 import com.example.math.EquationSolvers
 import com.example.math.ScientificEvaluator
 import org.junit.Assert.assertEquals
@@ -56,10 +56,9 @@ class MathEvaluatorTest {
 
     @Test
     fun testUnitConverter() {
-        val units = UnitConverterData.getUnitsForCategory(UnitCategory.ANGLE)
-        val deg = units.first { it.id == "deg" }
-        val rad = units.first { it.id == "rad" }
-        val converted = UnitConverterData.convert("180", deg, rad, UnitCategory.ANGLE)
-        assertEquals("3.141593", converted)
+        val deg = UnitConverterData.CATEGORY_UNITS[UnitCategory.ANGLE]!!.first { it.name == "Degrees" }
+        val rad = UnitConverterData.CATEGORY_UNITS[UnitCategory.ANGLE]!!.first { it.name == "Radians" }
+        val converted = UnitConverterData.convert(180.0, deg, rad, UnitCategory.ANGLE)
+        assertEquals(Math.PI, converted, 1e-4)
     }
 }

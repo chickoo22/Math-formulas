@@ -35,16 +35,20 @@ import com.example.data.local.ExamNoteEntity
 import com.example.ui.components.BannerAdView
 import com.example.ui.screens.*
 import com.example.ui.theme.ThemeMode
+import com.example.data.model.Subject
 import kotlinx.coroutines.launch
 
 enum class NavDestination(
     val title: String,
+    val drawerLabel: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val testTag: String
 ) {
-    FORMULAS("Formulas", Icons.Default.Functions, "nav_formulas"),
-    ROOTS("Square & Cube Roots", Icons.Default.SquareFoot, "nav_roots"),
-    CONVERTER("Unit Converter", Icons.Default.CompareArrows, "nav_converter")
+    FORMULAS("Math", "Mathematics Formulas", Icons.Default.Functions, "nav_formulas"),
+    PHYSICS("Physics", "Class 12 Physics", Icons.Default.Bolt, "nav_physics"),
+    SOLVED("Solved", "Step-by-Step Problems", Icons.Default.AutoFixHigh, "nav_solved"),
+    NOTES("Notes", "Exam Revision Notes", Icons.Default.EditNote, "nav_notes"),
+    CONVERTER("Converter", "Unit Converter", Icons.Default.CompareArrows, "nav_converter")
 }
 
 fun openPlayStoreRating(context: Context) {
@@ -242,7 +246,7 @@ fun MainScreen(
                             },
                             label = {
                                 Text(
-                                    text = destination.title,
+                                    text = destination.drawerLabel,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                     fontSize = 14.sp
                                 )
@@ -687,19 +691,32 @@ fun MainScreen(
                     NavDestination.FORMULAS -> {
                         FormulasScreen(
                             formulasWithBookmarks = formulas,
-                            onToggleBookmark = { viewModel.toggleBookmark(it) }
+                            onToggleBookmark = { viewModel.toggleBookmark(it) },
+                            initialSubject = Subject.MATH
                         )
                     }
-                    NavDestination.ROOTS -> {
-                        RootsSectionScreen(
+                    NavDestination.PHYSICS -> {
+                        FormulasScreen(
                             formulasWithBookmarks = formulas,
-                            onToggleBookmark = { viewModel.toggleBookmark(it) }
+                            onToggleBookmark = { viewModel.toggleBookmark(it) },
+                            initialSubject = Subject.PHYSICS
+                        )
+                    }
+                    NavDestination.SOLVED -> {
+                        SolvedEquationsScreen()
+                    }
+                    NavDestination.NOTES -> {
+                        NotesScreen(
+                            notes = notes,
+                            onAddNote = { viewModel.addNote(it) },
+                            onUpdateNote = { viewModel.updateNote(it) },
+                            onDeleteNote = { viewModel.deleteNote(it) },
+                            onTogglePin = { viewModel.togglePinNote(it) }
                         )
                     }
                     NavDestination.CONVERTER -> {
                         UnitConverterScreen()
                     }
-
                 }
             }
         }

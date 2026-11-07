@@ -23,7 +23,8 @@ import com.example.data.model.MathCategory
 fun CategoryChipRow(
     selectedCategory: MathCategory,
     onSelectCategory: (MathCategory) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    categories: List<MathCategory> = MathCategory.entries
 ) {
     val scrollState = rememberScrollState()
 
@@ -34,14 +35,14 @@ fun CategoryChipRow(
             .padding(horizontal = 16.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        MathCategory.entries.forEach { category ->
+        categories.forEach { category ->
             val isSelected = category == selectedCategory
             FilterChip(
                 selected = isSelected,
                 onClick = { onSelectCategory(category) },
                 label = {
                     Text(
-                        text = category.title,
+                        text = if (category == MathCategory.ALL && categories.any { it == MathCategory.ELECTROSTATICS }) "All Physics" else category.title,
                         fontSize = 12.5.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                         color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface

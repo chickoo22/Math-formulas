@@ -3,6 +3,7 @@ package com.example.ui.components
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -21,7 +22,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.model.EducationLevel
 import com.example.data.model.Formula
+import com.example.data.model.Subject
 
 @Composable
 fun MathFormulaCard(
@@ -64,7 +67,7 @@ fun MathFormulaCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Header: Category tag, High-Yield badge, Subcategory, Bookmark Button
+            // Header: Category tag, Education Level, High-Yield badge, Action Buttons (Copy, Share, Bookmark)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -72,7 +75,7 @@ fun MathFormulaCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                     modifier = Modifier.weight(1f)
                 ) {
                     Surface(
@@ -87,9 +90,42 @@ fun MathFormulaCard(
                             text = formula.category.title.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.6.sp
+                            letterSpacing = 0.5.sp
+                        )
+                    }
+
+                    // Subject & Grade Badge
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = if (formula.subject == Subject.PHYSICS) {
+                            MaterialTheme.colorScheme.tertiaryContainer
+                        } else {
+                            when (formula.educationLevel) {
+                                EducationLevel.CLASS_10 -> MaterialTheme.colorScheme.secondaryContainer
+                                EducationLevel.CLASS_12 -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+                                EducationLevel.ADVANCED -> MaterialTheme.colorScheme.tertiaryContainer
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = if (formula.subject == Subject.PHYSICS) "⚡ PHY 12" else formula.educationLevel.shortBadge,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (formula.subject == Subject.PHYSICS) {
+                                MaterialTheme.colorScheme.onTertiaryContainer
+                            } else {
+                                when (formula.educationLevel) {
+                                    EducationLevel.CLASS_10 -> MaterialTheme.colorScheme.onSecondaryContainer
+                                    EducationLevel.CLASS_12 -> MaterialTheme.colorScheme.onPrimaryContainer
+                                    EducationLevel.ADVANCED -> MaterialTheme.colorScheme.onTertiaryContainer
+                                    else -> MaterialTheme.colorScheme.onSurface
+                                }
+                            },
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp
                         )
                     }
 
@@ -102,9 +138,9 @@ fun MathFormulaCard(
                                 text = "HIGH YIELD",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 3.dp),
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 9.5.sp
+                                fontSize = 9.sp
                             )
                         }
                     }
@@ -118,17 +154,80 @@ fun MathFormulaCard(
                     )
                 }
 
-                IconButton(
-                    onClick = onToggleBookmark,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .testTag("bookmark_btn_${formula.id}")
+                // Quick Action Buttons Row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
-                    Icon(
-                        imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
-                        contentDescription = if (isBookmarked) "Remove bookmark" else "Bookmark formula",
-                        tint = if (isBookmarked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    // One-Tap Copy Button
+                    IconButton(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val copyText = "${formula.title}\n${formula.formulaDisplay}\n${formula.description}"
+                            clipboard.setPrimaryClip(ClipData.newPlainText("Math Formula", copyText))
+                            Toast.makeText(context, "Copied ${formula.title}", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("copy_card_btn_${formula.id}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copy formula to clipboard",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    // One-Tap Share Button
+                    IconButton(
+                        onClick = {
+                            val shareText = buildString {
+                                append("[MathVerse] ").append(formula.title).append(" (").append(formula.educationLevel.label).append(")\n\n")
+                                append("Formula:\n").append(formula.formulaDisplay).append("\n\n")
+                                append(formula.description).append("\n")
+                                if (formula.example != null) {
+                                    append("\nWorked Example:\n").append(formula.example).append("\n")
+                                }
+                                if (formula.memoryTip != null) {
+                                    append("\nMemory Hook:\n").append(formula.memoryTip).append("\n")
+                                }
+                            }
+                            val sendIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                                type = "text/plain"
+                            }
+                            val shareIntent = Intent.createChooser(sendIntent, "Share formula via")
+                            shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(shareIntent)
+                        },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("share_card_btn_${formula.id}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share formula",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    // Bookmark Toggle Button
+                    IconButton(
+                        onClick = onToggleBookmark,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .testTag("bookmark_btn_${formula.id}")
+                    ) {
+                        Icon(
+                            imageVector = if (isBookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                            contentDescription = if (isBookmarked) "Remove bookmark" else "Bookmark formula",
+                            tint = if (isBookmarked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
 
