@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.Formula
 import com.example.data.model.MathCategory
 import com.example.data.repository.FormulaWithBookmark
+import com.example.util.QuizAdController
+import com.example.util.findActivity
 
 @Composable
 fun MemorizeScreen(
@@ -42,7 +45,11 @@ fun MemorizeScreen(
     var selectedCategory by remember { mutableStateOf(MathCategory.ALL) }
     var currentIndex by remember { mutableIntStateOf(0) }
     var isFlipped by remember { mutableStateOf(false) }
+    var sessionFinished by remember { mutableStateOf(false) }
+    var isBonusRound by remember { mutableStateOf(false) }
     val masteredIds = remember { mutableStateListOf<String>() }
+    val context = LocalContext.current
+    val quizAds = remember(context.findActivity()) { context.findActivity()?.let(::QuizAdController) }
 
     val filteredList = remember(formulasWithBookmarks, selectedCategory) {
         val list = if (selectedCategory == MathCategory.ALL) {
@@ -52,14 +59,22 @@ fun MemorizeScreen(
         }
         if (list.isEmpty()) formulasWithBookmarks else list
     }
-
-    // Reset index when filter changes
-    LaunchedEffect(selectedCategory) {
-        currentIndex = 0
-        isFlipped = false
+    val activeList = remember(filteredList, isBonusRound) {
+        if (isBonusRound) filteredList.shuffled().take(5) else filteredList
     }
 
-    val currentItem = filteredList.getOrNull(currentIndex) ?: filteredList.firstOrNull()
+    LaunchedEffect(quizAds) {
+        quizAds?.preload()
+    }
+
+    // Reset index when filter changes
+    LaunchedEffect(selectedCategory, isBonusRound) {
+        currentIndex = 0
+        isFlipped = false
+        sessionFinished = false
+    }
+
+    val currentItem = activeList.getOrNull(currentIndex) ?: activeList.firstOrNull()
 
     Column(
         modifier = modifier
@@ -102,7 +117,7 @@ fun MemorizeScreen(
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
             ) {
                 Text(
-                    text = "${masteredIds.size}/${filteredList.size} Mastered",
+                    text = "${masteredIds.size}/${activeList.size} Mastered",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold,
@@ -112,8 +127,8 @@ fun MemorizeScreen(
         }
 
         // Progress bar
-        val progress = if (filteredList.isNotEmpty()) {
-            (currentIndex + 1).toFloat() / filteredList.size.toFloat()
+        val progress = if (activeList.isNotEmpty()) {
+            (currentIndex + 1).toFloat() / activeList.size.toFloat()
         } else 0f
         LinearProgressIndicator(
             progress = { progress },
@@ -156,7 +171,31 @@ fun MemorizeScreen(
             }
         }
 
-        if (currentItem != null) {
+        if (sessionFinished) {
+            QuizCompleteCard(
+                masteredCount = masteredIds.size,
+                totalCards = activeList.size,
+                isBonusRound = isBonusRound,
+                onWatchRewarded = {
+                    quizAds?.showRewarded(
+                        onReward = {
+                            masteredIds.clear()
+                            isBonusRound = true
+                            sessionFinished = false
+                        },
+                        onUnavailable = {
+                            android.widget.Toast.makeText(context, "Bonus review is loading. Please try again shortly.", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    ) ?: android.widget.Toast.makeText(context, "Bonus review is unavailable right now.", android.widget.Toast.LENGTH_SHORT).show()
+                },
+                onStartAgain = {
+                    masteredIds.clear()
+                    isBonusRound = false
+                    currentIndex = 0
+                    sessionFinished = false
+                }
+            )
+        } else if (currentItem != null) {
             val formula = currentItem.formula
             val isMastered = masteredIds.contains(formula.id)
 
@@ -424,7 +463,7 @@ fun MemorizeScreen(
                 OutlinedButton(
                     onClick = {
                         masteredIds.remove(formula.id)
-                        if (currentIndex < filteredList.size - 1) {
+                        if (currentIndex < activeList.size - 1) {
                             currentIndex++
                             isFlipped = false
                         }
@@ -445,7 +484,7 @@ fun MemorizeScreen(
                         if (!masteredIds.contains(formula.id)) {
                             masteredIds.add(formula.id)
                         }
-                        if (currentIndex < filteredList.size - 1) {
+                        if (currentIndex < activeList.size - 1) {
                             currentIndex++
                             isFlipped = false
                         }
@@ -483,7 +522,7 @@ fun MemorizeScreen(
                 }
 
                 Text(
-                    text = "Card ${currentIndex + 1} of ${filteredList.size}",
+                    text = "Card ${currentIndex + 1} of ${activeList.size}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -491,17 +530,64 @@ fun MemorizeScreen(
 
                 IconButton(
                     onClick = {
-                        if (currentIndex < filteredList.size - 1) {
+                        if (currentIndex < activeList.size - 1) {
                             currentIndex++
                             isFlipped = false
                         }
                     },
-                    enabled = currentIndex < filteredList.size - 1,
+                    enabled = currentIndex < activeList.size - 1,
                     modifier = Modifier.size(44.dp)
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next card", tint = MaterialTheme.colorScheme.onSurface)
                 }
             }
+
+            if (currentIndex == activeList.lastIndex) {
+                FilledTonalButton(
+                    onClick = {
+                        quizAds?.showCompletionInterstitial { sessionFinished = true } ?: run { sessionFinished = true }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(Icons.Default.Flag, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Finish session")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuizCompleteCard(
+    masteredCount: Int,
+    totalCards: Int,
+    isBonusRound: Boolean,
+    onWatchRewarded: () -> Unit,
+    onStartAgain: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(48.dp))
+            Text(if (isBonusRound) "Bonus review complete" else "Session complete", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("You marked $masteredCount of $totalCards cards as mastered.", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (!isBonusRound) {
+                OutlinedButton(onClick = onWatchRewarded, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.PlayCircle, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Watch an ad for a 5-card bonus review")
+                }
+            }
+            Button(onClick = onStartAgain, modifier = Modifier.fillMaxWidth()) { Text("Start a new session") }
         }
     }
 }

@@ -35,6 +35,7 @@ import com.example.ui.components.MathFormulaCard
 import com.example.ui.components.SubjectSelectorRow
 import com.example.util.PdfGenerator
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormulasScreen(
     formulasWithBookmarks: List<FormulaWithBookmark>,
