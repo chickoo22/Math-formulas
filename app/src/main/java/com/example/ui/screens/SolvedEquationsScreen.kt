@@ -41,7 +41,7 @@ fun SolvedEquationsScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Solved Library", "Interactive Solvers")
+    val tabs = listOf("Worked examples", "Solve a problem")
 
     Column(
         modifier = modifier

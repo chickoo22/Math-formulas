@@ -1,7 +1,5 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,8 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.List
-import kotlinx.coroutines.launch
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Search
@@ -24,7 +20,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
@@ -35,7 +30,6 @@ import com.example.data.model.EducationLevel
 import com.example.data.model.MathCategory
 import com.example.data.model.Subject
 import com.example.data.repository.FormulaWithBookmark
-import com.example.ui.components.CategoryChipRow
 import com.example.ui.components.EducationLevelChipRow
 import com.example.ui.components.MathFormulaCard
 import com.example.ui.components.SubjectSelectorRow
@@ -54,7 +48,7 @@ fun FormulasScreen(
     var selectedCategory by remember { mutableStateOf(MathCategory.ALL) }
     var showOnlyBookmarked by remember { mutableStateOf(false) }
     var isMemorizeMode by remember { mutableStateOf(false) }
-    var showChaptersDialog by remember { mutableStateOf(false) }
+    var showFilters by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val mathCategories = remember {
@@ -118,62 +112,6 @@ fun FormulasScreen(
             contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // PDF Download Action Banner
-            item {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    tonalElevation = 2.dp
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = if (selectedSubject == Subject.MATH) "Complete Math Formula Sheet" else "Class 12 Physics Formula Sheet",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = if (selectedSubject == Subject.MATH) "Std 10th & 12th Board Exam Handbook" else "Electrostatics, Optics, Magnetism & Modern Physics",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                            )
-                        }
-
-                        Button(
-                            onClick = {
-                                PdfGenerator.generateFormulaSheetPdf(context, filteredFormulas)
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            ),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                            modifier = Modifier.testTag("download_formula_pdf_btn")
-                        ) {
-                            Icon(
-                                imageVector = androidx.compose.material.icons.Icons.Default.Download,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Download PDF", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-
         // Top Subject Selector (Mathematics vs Class 12 Physics)
         item {
             SubjectSelectorRow(
@@ -187,253 +125,38 @@ fun FormulasScreen(
             )
         }
 
-        // Search Bar with explicit text colors
-        item {
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = {
-                    Text(
-                        if (selectedSubject == Subject.MATH) "Search theorem, expansion, integral, radical..." else "Search Coulomb, Gauss, lens, de Broglie, Ohm...",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                trailingIcon = {
-                    if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { searchQuery = "" }) {
-                            Icon(
-                                imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear search",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .testTag("formula_search_input"),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                    cursorColor = MaterialTheme.colorScheme.primary
-                ),
-                singleLine = true
-            )
-        }
-
-        // Grade / Board Level Filter Chips (Std 10, Std 12, Advanced, All) - Shown for Mathematics
-        if (selectedSubject == Subject.MATH) {
-            item {
-                EducationLevelChipRow(
-                    selectedLevel = selectedEducationLevel,
-                    onSelectLevel = { selectedEducationLevel = it }
-                )
-            }
-        }
-
-        // Category Filter Chips & Chapter Index Quick Button
-        item {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "CHAPTERS & TOPICS",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        letterSpacing = 0.8.sp
-                    )
-                    TextButton(
-                        onClick = { showChaptersDialog = true },
-                        contentPadding = PaddingValues(4.dp),
-                        modifier = Modifier.testTag("open_chapters_dialog_btn")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.List,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("View Index (${currentCategories.size})", fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                CategoryChipRow(
-                    selectedCategory = selectedCategory,
-                    onSelectCategory = { selectedCategory = it },
-                    categories = currentCategories
-                )
-            }
-        }
-
-        // Chapters Index Quick Picker Dialog
-        if (showChaptersDialog) {
-            item {
-                AlertDialog(
-                    onDismissRequest = { showChaptersDialog = false },
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    textContentColor = MaterialTheme.colorScheme.onSurface,
-                    title = {
-                        Text(
-                            text = if (selectedSubject == Subject.MATH) "Mathematics Chapters" else "Physics 12 Chapters",
-                            fontWeight = FontWeight.Bold
-                        )
-                    },
-                    text = {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            currentCategories.forEach { category ->
-                                val isSelected = category == selectedCategory
-                                Surface(
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        1.dp,
-                                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                                    ),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedCategory = category
-                                            showChaptersDialog = false
-                                        }
-                                        .testTag("chapter_item_${category.name.lowercase()}")
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = category.title,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                                            fontSize = 13.5.sp
-                                        )
-                                        val count = if (category == MathCategory.ALL) {
-                                            formulasWithBookmarks.count { it.formula.subject == selectedSubject }
-                                        } else {
-                                            formulasWithBookmarks.count { it.formula.subject == selectedSubject && it.formula.category == category }
-                                        }
-                                        Surface(
-                                            shape = RoundedCornerShape(6.dp),
-                                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-                                        ) {
-                                            Text(
-                                                text = "$count formulas",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                                fontSize = 10.sp
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showChaptersDialog = false }) {
-                            Text("Close", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                )
-            }
-        }
-
-        // Student Study Mode Bar: Memorize Mode (Masks Formulas) & Bookmarks Filter
+        // Search is the primary way to find a formula. Less-common controls live in Filters.
         item {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Memorize Mask Toggle
-                FilterChip(
-                    selected = isMemorizeMode,
-                    onClick = { isMemorizeMode = !isMemorizeMode },
-                    label = {
-                        Text(
-                            text = if (isMemorizeMode) "Memorize Mode (Masked)" else "Memorize Mode",
-                            fontSize = 11.5.sp,
-                            fontWeight = if (isMemorizeMode) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isMemorizeMode) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = if (isMemorizeMode) Icons.Default.VisibilityOff else Icons.Default.Psychology,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp),
-                            tint = if (isMemorizeMode) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        labelColor = MaterialTheme.colorScheme.onSurface,
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    modifier = Modifier.testTag("memorize_mode_chip")
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text(if (selectedSubject == Subject.MATH) "Search formulas, topics, or symbols" else "Search physics formulas or topics") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    trailingIcon = { if (searchQuery.isNotEmpty()) IconButton(onClick = { searchQuery = "" }) { Icon(Icons.Default.Clear, contentDescription = "Clear search") } },
+                    modifier = Modifier.weight(1f).testTag("formula_search_input"),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
                 )
-
-                // Bookmarked Only Filter
-                FilterChip(
-                    selected = showOnlyBookmarked,
-                    onClick = { showOnlyBookmarked = !showOnlyBookmarked },
-                    label = {
-                        Text(
-                            text = if (showOnlyBookmarked) "Saved only" else "All formulas",
-                            fontSize = 11.5.sp,
-                            color = if (showOnlyBookmarked) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Bookmark,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = if (showOnlyBookmarked) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.tertiary
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        labelColor = MaterialTheme.colorScheme.onSurface,
-                        selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    ),
-                    modifier = Modifier.testTag("bookmark_filter_chip")
-                )
+                Spacer(modifier = Modifier.width(8.dp))
+                FilledTonalIconButton(onClick = { showFilters = true }, modifier = Modifier.testTag("open_formula_filters_btn")) {
+                    Icon(Icons.Default.FilterList, contentDescription = "Open filters")
+                }
             }
+        }
+
+        item {
+            Text(
+                text = "${filteredFormulas.size} formulas${if (selectedCategory != MathCategory.ALL) " · ${selectedCategory.title}" else ""}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
         }
 
         // Formula Cards List
@@ -480,4 +203,43 @@ fun FormulasScreen(
     }
 
   }
+
+    if (showFilters) {
+        ModalBottomSheet(onDismissRequest = { showFilters = false }) {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text("Browse and filter", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                if (selectedSubject == Subject.MATH) {
+                    Text("Class level", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    EducationLevelChipRow(selectedLevel = selectedEducationLevel, onSelectLevel = { selectedEducationLevel = it })
+                }
+                Text("Topic", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                currentCategories.forEach { category ->
+                    val count = formulasWithBookmarks.count { it.formula.subject == selectedSubject && (category == MathCategory.ALL || it.formula.category == category) }
+                    ListItem(
+                        headlineContent = { Text(category.title) },
+                        supportingContent = { Text("$count formulas") },
+                        trailingContent = { if (selectedCategory == category) Icon(Icons.Default.Visibility, contentDescription = "Selected") },
+                        modifier = Modifier.clickable { selectedCategory = category; showFilters = false }.testTag("chapter_item_${category.name.lowercase()}")
+                    )
+                }
+                HorizontalDivider()
+                FilterChip(selected = isMemorizeMode, onClick = { isMemorizeMode = !isMemorizeMode }, label = { Text("Quiz me (hide formulas)") }, leadingIcon = { Icon(Icons.Default.Psychology, null) }, modifier = Modifier.testTag("memorize_mode_chip"))
+                FilterChip(selected = showOnlyBookmarked, onClick = { showOnlyBookmarked = !showOnlyBookmarked }, label = { Text("Saved formulas only") }, leadingIcon = { Icon(Icons.Default.Bookmark, null) }, modifier = Modifier.testTag("bookmark_filter_chip"))
+                OutlinedButton(onClick = { PdfGenerator.generateFormulaSheetPdf(context, filteredFormulas) }, modifier = Modifier.fillMaxWidth().testTag("download_formula_pdf_btn")) {
+                    Icon(Icons.Default.Download, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Download current formula sheet")
+                }
+                TextButton(onClick = {
+                    selectedEducationLevel = EducationLevel.ALL
+                    selectedCategory = MathCategory.ALL
+                    showOnlyBookmarked = false
+                }, modifier = Modifier.align(Alignment.End)) { Text("Clear filters") }
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
 }

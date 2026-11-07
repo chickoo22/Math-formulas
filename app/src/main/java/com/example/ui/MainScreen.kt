@@ -35,7 +35,6 @@ import com.example.data.local.ExamNoteEntity
 import com.example.ui.components.BannerAdView
 import com.example.ui.screens.*
 import com.example.ui.theme.ThemeMode
-import com.example.data.model.Subject
 import kotlinx.coroutines.launch
 
 enum class NavDestination(
@@ -44,11 +43,12 @@ enum class NavDestination(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val testTag: String
 ) {
-    FORMULAS("Math", "Mathematics Formulas", Icons.Default.Functions, "nav_formulas"),
-    PHYSICS("Physics", "Class 12 Physics", Icons.Default.Bolt, "nav_physics"),
-    SOLVED("Solved", "Step-by-Step Problems", Icons.Default.AutoFixHigh, "nav_solved"),
+    HOME("Home", "Study Home", Icons.Default.Home, "nav_home"),
+    LIBRARY("Library", "Formula Library", Icons.Default.Functions, "nav_library"),
+    QUIZ("Quiz", "Formula Quiz", Icons.Default.Psychology, "nav_quiz"),
+    SOLVE("Solve", "Worked Examples & Solvers", Icons.Default.AutoFixHigh, "nav_solve"),
     NOTES("Notes", "Exam Revision Notes", Icons.Default.EditNote, "nav_notes"),
-    CONVERTER("Converter", "Unit Converter", Icons.Default.CompareArrows, "nav_converter")
+    TOOLS("Tools", "Tables & Unit Converter", Icons.Default.Build, "nav_tools")
 }
 
 fun openPlayStoreRating(context: Context) {
@@ -100,7 +100,7 @@ fun MainScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var currentDestination by remember { mutableStateOf(NavDestination.FORMULAS) }
+    var currentDestination by remember { mutableStateOf(NavDestination.HOME) }
     var showHelpDialog by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
     var showPrivacyDialog by remember { mutableStateOf(false) }
@@ -225,7 +225,7 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        text = "STUDY SECTIONS",
+                        text = "STUDY SHORTCUT",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -233,8 +233,8 @@ fun MainScreen(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
 
-                    // Navigation Items in Drawer
-                    NavDestination.entries.forEach { destination ->
+                    // The primary sections live in the bottom bar. Keep this drawer for secondary actions.
+                    NavDestination.entries.filter { it == NavDestination.QUIZ }.forEach { destination ->
                         val isSelected = currentDestination == destination
                         NavigationDrawerItem(
                             icon = {
@@ -637,15 +637,17 @@ fun MainScreen(
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars)
                 ) {
-                    // Non-intrusive AdMob banner loaded only when internet/wifi is active
-                    BannerAdView(isOnline = isOnline)
+                    // Keep focused study tasks free of visual interruption.
+                    if (currentDestination != NavDestination.SOLVE && currentDestination != NavDestination.QUIZ) {
+                        BannerAdView(isOnline = isOnline)
+                    }
 
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 4.dp,
                         modifier = Modifier.testTag("bottom_nav_bar")
                     ) {
-                        NavDestination.entries.forEach { destination ->
+                        NavDestination.entries.filter { it != NavDestination.QUIZ }.forEach { destination ->
                             val isSelected = currentDestination == destination
                             NavigationBarItem(
                                 selected = isSelected,
@@ -688,21 +690,30 @@ fun MainScreen(
                 label = "tab_crossfade"
             ) { target ->
                 when (target) {
-                    NavDestination.FORMULAS -> {
-                        FormulasScreen(
-                            formulasWithBookmarks = formulas,
-                            onToggleBookmark = { viewModel.toggleBookmark(it) },
-                            initialSubject = Subject.MATH
+                    NavDestination.HOME -> {
+                        HomeScreen(
+                            formulaCount = formulas.size,
+                            savedCount = formulas.count { it.isBookmarked },
+                            noteCount = notes.size,
+                            onOpenLibrary = { currentDestination = NavDestination.LIBRARY },
+                            onOpenQuiz = { currentDestination = NavDestination.QUIZ },
+                            onOpenSolve = { currentDestination = NavDestination.SOLVE },
+                            onOpenTools = { currentDestination = NavDestination.TOOLS }
                         )
                     }
-                    NavDestination.PHYSICS -> {
+                    NavDestination.LIBRARY -> {
                         FormulasScreen(
                             formulasWithBookmarks = formulas,
-                            onToggleBookmark = { viewModel.toggleBookmark(it) },
-                            initialSubject = Subject.PHYSICS
+                            onToggleBookmark = { viewModel.toggleBookmark(it) }
                         )
                     }
-                    NavDestination.SOLVED -> {
+                    NavDestination.QUIZ -> {
+                        MemorizeScreen(
+                            formulasWithBookmarks = formulas,
+                            onToggleBookmark = { viewModel.toggleBookmark(it) }
+                        )
+                    }
+                    NavDestination.SOLVE -> {
                         SolvedEquationsScreen()
                     }
                     NavDestination.NOTES -> {
@@ -714,8 +725,11 @@ fun MainScreen(
                             onTogglePin = { viewModel.togglePinNote(it) }
                         )
                     }
-                    NavDestination.CONVERTER -> {
-                        UnitConverterScreen()
+                    NavDestination.TOOLS -> {
+                        ToolsScreen(
+                            formulasWithBookmarks = formulas,
+                            onToggleBookmark = { viewModel.toggleBookmark(it) }
+                        )
                     }
                 }
             }

@@ -39,6 +39,8 @@ fun NotesScreen(
     var selectedCategoryFilter by remember { mutableStateOf("All") }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingNote by remember { mutableStateOf<ExamNoteEntity?>(null) }
+    var notePendingDeletion by remember { mutableStateOf<ExamNoteEntity?>(null) }
+    var showCategoryPicker by remember { mutableStateOf(false) }
 
     val categories = listOf("All", "Algebra", "Calculus", "Trigonometry", "Formulas", "Exam Prep", "General")
 
@@ -95,35 +97,20 @@ fun NotesScreen(
                     singleLine = true
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    categories.forEach { cat ->
-                        val isSelected = selectedCategoryFilter == cat
-                        FilterChip(
-                            selected = isSelected,
-                            onClick = { selectedCategoryFilter = cat },
-                            label = {
-                                Text(
-                                    cat,
-                                    fontSize = 12.sp,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                labelColor = MaterialTheme.colorScheme.onSurface,
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                    }
+                    Text("${filteredNotes.size} notes", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    FilterChip(
+                        selected = selectedCategoryFilter != "All",
+                        onClick = { showCategoryPicker = true },
+                        label = { Text(if (selectedCategoryFilter == "All") "All categories" else selectedCategoryFilter) },
+                        leadingIcon = { Icon(Icons.Default.FilterList, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                    )
                 }
             }
 
@@ -171,7 +158,7 @@ fun NotesScreen(
                         ExamNoteCard(
                             note = note,
                             onEdit = { editingNote = note },
-                            onDelete = { onDeleteNote(note.id) },
+                            onDelete = { notePendingDeletion = note },
                             onTogglePin = { onTogglePin(note.id) }
                         )
                     }
@@ -213,6 +200,43 @@ fun NotesScreen(
                 editingNote = null
             }
         )
+    }
+
+    notePendingDeletion?.let { note ->
+        AlertDialog(
+            onDismissRequest = { notePendingDeletion = null },
+            title = { Text("Delete note?") },
+            text = { Text("\"${note.title}\" will be permanently removed from this device.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteNote(note.id)
+                        notePendingDeletion = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete") }
+            },
+            dismissButton = { TextButton(onClick = { notePendingDeletion = null }) { Text("Keep note") } }
+        )
+    }
+
+    if (showCategoryPicker) {
+        ModalBottomSheet(onDismissRequest = { showCategoryPicker = false }) {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+                Text("Filter notes", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                categories.forEach { category ->
+                    ListItem(
+                        headlineContent = { Text(category) },
+                        trailingContent = { if (selectedCategoryFilter == category) Icon(Icons.Default.Check, contentDescription = "Selected") },
+                        modifier = Modifier.clickable {
+                            selectedCategoryFilter = category
+                            showCategoryPicker = false
+                        }
+                    )
+                }
+                Spacer(Modifier.height(20.dp))
+            }
+        }
     }
 }
 
