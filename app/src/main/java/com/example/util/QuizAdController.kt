@@ -3,6 +3,7 @@ package com.example.util
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import com.example.BuildConfig
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -16,8 +17,10 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
  * These are Google's test IDs. Replace them with the matching production units before release.
  */
 object QuizAdUnits {
-    const val INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
-    const val REWARDED = "ca-app-pub-3940256099942544/5224354917"
+    val interstitial: String
+        get() = BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID
+    val rewarded: String
+        get() = BuildConfig.ADMOB_REWARDED_AD_UNIT_ID
 }
 
 class QuizAdController(private val activity: Activity) {
@@ -75,7 +78,7 @@ class QuizAdController(private val activity: Activity) {
     private fun loadInterstitial() {
         InterstitialAd.load(
             activity,
-            QuizAdUnits.INTERSTITIAL,
+            QuizAdUnits.interstitial,
             AdRequest.Builder().build(),
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
@@ -88,7 +91,7 @@ class QuizAdController(private val activity: Activity) {
     private fun loadRewarded() {
         RewardedAd.load(
             activity,
-            QuizAdUnits.REWARDED,
+            QuizAdUnits.rewarded,
             AdRequest.Builder().build(),
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {

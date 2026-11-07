@@ -15,10 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
 
-        <!-- Google Mobile Ads Sample Application ID (Replace with production AdMob ID upon Play Store release) -->
+        <!-- Injected from Gradle: test ID for debug, required production ID for release. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="${ADMOB_APP_ID}"/>
 
         <!-- Deactivate automatic analytics collection -->
         <meta-data

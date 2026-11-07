@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.BuildConfig
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -23,16 +24,15 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
 
 object AdConstants {
-    // Official Google AdMob sample banner ad unit ID for testing
-    // Replace with your production Ad Unit ID from Google AdMob when publishing to Play Store
-    const val BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
+    val bannerAdUnitId: String
+        get() = BuildConfig.ADMOB_BANNER_AD_UNIT_ID
 }
 
 @Composable
 fun BannerAdView(
     isOnline: Boolean,
     modifier: Modifier = Modifier,
-    adUnitId: String = AdConstants.BANNER_AD_UNIT_ID
+    adUnitId: String = AdConstants.bannerAdUnitId
 ) {
     var adLoaded by remember { mutableStateOf(false) }
 

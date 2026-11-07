@@ -1,5 +1,15 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
 
+val sampleAdMobAppId = "ca-app-pub-3940256099942544~3347511713"
+val sampleBannerAdUnitId = "ca-app-pub-3940256099942544/6300978111"
+val sampleInterstitialAdUnitId = "ca-app-pub-3940256099942544/1033173712"
+val sampleRewardedAdUnitId = "ca-app-pub-3940256099942544/5224354917"
+
+val releaseAdMobAppId = providers.environmentVariable("ADMOB_APP_ID").orElse(sampleAdMobAppId).get()
+val releaseBannerAdUnitId = providers.environmentVariable("ADMOB_BANNER_AD_UNIT_ID").orElse(sampleBannerAdUnitId).get()
+val releaseInterstitialAdUnitId = providers.environmentVariable("ADMOB_INTERSTITIAL_AD_UNIT_ID").orElse(sampleInterstitialAdUnitId).get()
+val releaseRewardedAdUnitId = providers.environmentVariable("ADMOB_REWARDED_AD_UNIT_ID").orElse(sampleRewardedAdUnitId).get()
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -19,6 +29,11 @@ android {
     targetSdk = 36
     versionCode = 1
     versionName = "1.0"
+
+    manifestPlaceholders["ADMOB_APP_ID"] = sampleAdMobAppId
+    buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"$sampleBannerAdUnitId\"")
+    buildConfigField("String", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "\"$sampleInterstitialAdUnitId\"")
+    buildConfigField("String", "ADMOB_REWARDED_AD_UNIT_ID", "\"$sampleRewardedAdUnitId\"")
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
@@ -45,6 +60,10 @@ android {
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("release")
+      manifestPlaceholders["ADMOB_APP_ID"] = releaseAdMobAppId
+      buildConfigField("String", "ADMOB_BANNER_AD_UNIT_ID", "\"$releaseBannerAdUnitId\"")
+      buildConfigField("String", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "\"$releaseInterstitialAdUnitId\"")
+      buildConfigField("String", "ADMOB_REWARDED_AD_UNIT_ID", "\"$releaseRewardedAdUnitId\"")
     }
     debug { signingConfig = signingConfigs.getByName("debugConfig") }
   }
@@ -61,6 +80,28 @@ android {
     includeInApk = false
     includeInBundle = true
   }
+}
+
+val verifyReleaseAdConfiguration by tasks.registering {
+  group = "verification"
+  description = "Fails release builds when AdMob test IDs are still configured."
+  doLast {
+    val productionValues = listOf(
+      "ADMOB_APP_ID" to releaseAdMobAppId,
+      "ADMOB_BANNER_AD_UNIT_ID" to releaseBannerAdUnitId,
+      "ADMOB_INTERSTITIAL_AD_UNIT_ID" to releaseInterstitialAdUnitId,
+      "ADMOB_REWARDED_AD_UNIT_ID" to releaseRewardedAdUnitId
+    )
+    val testValues = setOf(sampleAdMobAppId, sampleBannerAdUnitId, sampleInterstitialAdUnitId, sampleRewardedAdUnitId)
+    val missing = productionValues.filter { (_, value) -> value in testValues || value.isBlank() }.map { it.first }
+    check(missing.isEmpty()) {
+      "Release builds require production AdMob IDs. Configure: ${missing.joinToString()}"
+    }
+  }
+}
+
+tasks.matching { it.name == "bundleRelease" }.configureEach {
+  dependsOn(verifyReleaseAdConfiguration)
 }
 
 // Configure the Secrets Gradle Plugin to use .env and .env.example files
