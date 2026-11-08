@@ -91,6 +91,20 @@ fun sendFeedback(context: Context) {
     }
 }
 
+private const val PRIVACY_POLICY_URL = "https://chickoo22.github.io/Math-formulas/"
+
+fun openPrivacyPolicy(context: Context) {
+    try {
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+    } catch (_: ActivityNotFoundException) {
+        // A browser may not be installed on the device.
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -916,15 +930,20 @@ fun MainScreen(
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = { showPrivacyDialog = false },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    modifier = Modifier.testTag("privacy_dialog_close_btn")
-                ) {
-                    Text("Got It")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { openPrivacyPolicy(context) }) {
+                        Text("View full policy")
+                    }
+                    Button(
+                        onClick = { showPrivacyDialog = false },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier.testTag("privacy_dialog_close_btn")
+                    ) {
+                        Text("Close")
+                    }
                 }
             }
         )
